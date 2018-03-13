@@ -112,7 +112,7 @@ let db_mgmt_module = function() {
 				password: new_account.password.salt + '$' + new_account.password.hash,
 				registration_ip: new_account.registration_ip,
 				registration_date: util.mysql_iso_time(new Date(Date.now())),
-				grad_date: new_account.grad_year,
+				grad_date: new_account.grad_date,
 				mass_mail_optin: new_account.in_mailing_list,
 			};
 
@@ -239,6 +239,36 @@ let db_mgmt_module = function() {
 			[email, after]);
 	}
 
+	/* Get a list of the user's writeup submissions */
+	async function get_writeup_submissions(account_id) {
+		return await queryAsync('SELECT `key` FROM `writeup_submissions` WHERE `account_id` = ?',
+			account_id);
+	}
+
+	/* Records a writeup submission */
+	async function record_writeup_submission(account_id, key) {
+		const values = {
+			account_id: account_id,
+			key: key,
+		};
+		return await queryAsync('INSERT INTO `writeup_submissions` SET ?', values);
+	}
+
+	/* Records an file upload */
+	async function record_file_upload(account_id, key) {
+		const values = {
+			account_id: account_id,
+			key: key,
+		};
+		return await queryAsync('INSERT INTO `file_uploads` SET ?', values);
+	}
+
+		/* Get a list of the user's writeup submissions */
+		async function get_file_uploads(account_id) {
+			return await queryAsync('SELECT `key` FROM `file_uploads` WHERE `account_id` = ?',
+				account_id);
+		}
+
 	// Revealing module
 	return ({
 		create_account: create_account,
@@ -251,6 +281,10 @@ let db_mgmt_module = function() {
 		sign_in: sign_in,
 		get_sign_ins: get_sign_ins,
 		list_users: list_users,
+		get_writeup_submissions: get_writeup_submissions,
+		record_writeup_submission: record_writeup_submission,
+		record_file_upload: record_file_upload,
+		get_file_uploads: get_file_uploads,
 	});
 };
 

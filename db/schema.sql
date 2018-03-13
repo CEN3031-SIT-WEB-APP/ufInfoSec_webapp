@@ -68,6 +68,30 @@ CREATE TABLE `site_log` (
 	PRIMARY KEY (`id`)
 );
 
+CREATE TABLE `writeup_submissions` (
+	`account_id` INT NOT NULL,
+	`key` varchar(255) NOT NULL
+);
+
+CREATE TABLE `file_uploads` (
+	`account_id` INT NOT NULL,
+	`key` varchar(255) NOT NULL
+);
+
+CREATE TABLE `tiles` (
+	`id` INT NOT NULL AUTO_INCREMENT,
+	`name` varchar(127) NOT NULL,
+	`description` varchar(255) NOT NULL,
+	`link` varchar(255) NOT NULL,
+	`deleted` BOOLEAN NOT NULL DEFAULT '0',
+	PRIMARY KEY (`id`)
+);
+
+CREATE TABLE `event_sign_ins_old` (
+	`email` varchar(100),
+	`timestamp` varchar(100)
+);
+
 ALTER TABLE `account` ADD CONSTRAINT `account_fk0` FOREIGN KEY (`rank`) REFERENCES `account_rank`(`id`);
 
 ALTER TABLE `event_signin` ADD CONSTRAINT `event_signin_fk0` FOREIGN KEY (`event_id`) REFERENCES `event`(`id`);
@@ -79,3 +103,7 @@ ALTER TABLE `event` ADD CONSTRAINT `event_fk1` FOREIGN KEY (`created_by`) REFERE
 ALTER TABLE `session` ADD CONSTRAINT `session_fk0` FOREIGN KEY (`account_id`) REFERENCES `account`(`id`);
 
 ALTER TABLE `site_log` ADD CONSTRAINT `site_log_fk0` FOREIGN KEY (`account_id`) REFERENCES `account`(`id`);
+
+ALTER TABLE `writeup_submissions` ADD CONSTRAINT `writeup_submissions_fk0` FOREIGN KEY (`account_id`) REFERENCES `account`(`id`); 
+
+ALTER TABLE `file_uploads` ADD CONSTRAINT `file_uploads_fk0` FOREIGN KEY (`account_id`) REFERENCES `account`(`id`); 
