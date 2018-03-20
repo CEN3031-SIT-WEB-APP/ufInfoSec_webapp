@@ -3,6 +3,7 @@ import { RestService } from '../rest.service';
 import {NgbModal, ModalDismissReasons} from '@ng-bootstrap/ng-bootstrap';
 import { NgForm, FormBuilder, FormGroup, Validators, FormArray, FormControl } from '@angular/forms';
 import { SessionService } from '../session.service';
+import { MediatorService } from  '../mediator.service';
 
 @Component({
   selector: 'app-admin',
@@ -14,6 +15,7 @@ import { SessionService } from '../session.service';
 export class AdminComponent implements OnInit {
   private users;
   public orderForm: FormGroup;
+  //meetingSignIn: Boolean; MAY NEED TO UNCOMMENT LATER
   private cands = ['President', 'VP', 'Secretary', 'Treasurer'];
 
   notifications = {
@@ -22,7 +24,9 @@ export class AdminComponent implements OnInit {
   }
 
   constructor(private sessionService: SessionService, private requests: RestService, private modalService: NgbModal,
-              private formBuilder: FormBuilder) { }
+  //private mediator: MediatorService, UNCOMMENT LATER
+              private formBuilder: FormBuilder
+              ) { }
 
   ngOnInit() {
     // Uses the RestService to make an http request for a list of users
@@ -116,7 +120,13 @@ export class AdminComponent implements OnInit {
   }
 
   //Encapsulation yo
+  //GOOD JOB YO!
   public getCandidates() {
     return this.cands;
   }
+
+  //public setMeetingSignInState() {
+    //this.meetingSignIn = !this.meetingSignIn;
+    //this.mediator.setMeetingSignInState(this.meetingSignIn);
+  //} MAY NEED TO UNCOMMENT LATER
 }
