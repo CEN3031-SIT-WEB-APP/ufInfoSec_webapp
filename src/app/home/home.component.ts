@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { map } from 'rxjs/operators';
 import { SessionService } from '../session.service';
-import { MediatorService } from '../mediator.service';
 
 @Component({
   selector: 'app-home',
@@ -13,17 +12,11 @@ export class HomeComponent implements OnInit {
   // import the ActivatedRoute so we can get the result of what was resolved
   // before navigating here
 
-  //meetingSignInState: any = false;
-
   constructor(private sessionService: SessionService,
               private route: ActivatedRoute,
-              //private mediator: MediatorService,
               private router: Router) { }
 
   ngOnInit() {
-
-    //this.meetingSignInState = this.mediator.getMeetingSignInState();
-    //console.log(this.meetingSignInState);
 
     // get the resolved profile data
     const routeProfile = this.route.snapshot.data.profile;
