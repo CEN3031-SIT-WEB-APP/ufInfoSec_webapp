@@ -114,11 +114,26 @@ let db_mgmt_module = function () {
                 registration_date: util.mysql_iso_time(new Date(Date.now())),
                 grad_date: new_account.grad_date,
                 mass_mail_optin: new_account.in_mailing_list,
+                total_meetings: new_account.total_meetings
             };
 
             return await queryAsync('INSERT INTO `account` SET ?', values);
         }
     }
+
+    /* Meetings Sign In */
+    async function incTotalMeetings(account_id, account_data) {
+        account_data.total_meetings = account_data.total_meetings++;
+        return await sql_pool.query('UPDATE `account` SET ? WHERE id = ?', [account_data, account_id]);
+    }
+
+    /* Meetings Reset */
+    async function rstTotalMeetings(account_id, account_data) {
+        account_data.total_meetings = 0;
+        return await sql_pool.query('UPDATE `account` SET ? WHERE id = ?', [account_data, account_id]);
+    }
+
+        
 
     async function update_account(account_id, account_data) {
         // explicitly prevent primary keys from being clobbered
@@ -156,7 +171,7 @@ let db_mgmt_module = function () {
 
     async function list_users() {
         return await queryAsync('SELECT ?? FROM `account`',
-            [['id', 'email', 'full_name', 'mass_mail_optin', 'grad_date', 'registration_date']]);
+            [['id', 'email', 'full_name', 'mass_mail_optin', 'grad_date', 'registration_date', 'total_meetings']]);
     }
 
     async function add_tile(name, description, link) {
@@ -316,6 +331,8 @@ let db_mgmt_module = function () {
         delete_tile: delete_tile,
         custom_tiles: custom_tiles,
         tile_click: tile_click,
+        rstTotalMeetings: rstTotalMeetings,
+        incTotalMeetings: incTotalMeetings,
     });
 };
 
