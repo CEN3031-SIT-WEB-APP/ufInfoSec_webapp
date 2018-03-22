@@ -20,12 +20,51 @@
     </tbody>
   </table>
   <button class="btn btn-lg btn-outline-primary" (click)="open(content)">Create new poll</button>
+  <div class="row nav-row">
+    <button class="btn btn-lg btn-outline-success alterSignIn" (click) = "open(alterSignInModal)">
+      Change meeting sign-in count
+    </button>
+  </div>
 </div>
 
+<!-- Change meeting sign-in Modal Popup -->
+<ng-template #alterSignInModal let-c="close" let-d="dismiss">
+  <!--Empty Field Notification -->
+  <div *ngIf="notifications.emptyField" class="alert alert-danger alert-dismissible" id="emailConflictAlert" role="alert">
+    <button type="button" class="close" (click)="notifications.emptyField = false">
+    <span aria-hidden="true">&times;</span></button>
+    <span class="notification_panel"><strong>Error</strong> Cannot have empty field</span>
+  </div>
 
+  <!-- Header for modal -->
+  <div class="modal-header">
+    <h3 class="modal-title">Change meeting sign in count for a member</h3>
+    <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
 
+  <div class="modal-body">
+    <form [formGroup]="orderForm" (ngSubmit)="onSubmit(orderForm)">
+      <div formArrayName="candidates" *ngFor="let cand of orderForm.controls.candidates.controls; let i = index;">
+        <div [formGroupName]="i">
+          <h6 class="modal-title">Member name</h6>
+          <input type="textarea" formControlName="Member" placeholder="Person"/>
+          <select formControlName="numbers">
+            <option *ngFor="let count of getNums()" [value]="count">{{count}}</option>
+          </select>
 
-<!-- Modal Popup -->
+          <button type="button" class="btn btn-danger badge" (click)="deleteField(i)">x</button>
+          <br><br>
+        </div>
+      </div>
+
+      <button type="submit">Save</button>
+    </form>
+  </div>
+</ng-template>
+
+<!-- Election Modal Popup -->
 <ng-template #content let-c="close" let-d="dismiss">
   <!--Empty Field Notification -->
   <div *ngIf="notifications.emptyField" class="alert alert-danger alert-dismissible" id="emailConflictAlert" role="alert">
