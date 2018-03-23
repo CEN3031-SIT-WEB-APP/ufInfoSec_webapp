@@ -121,19 +121,42 @@ let db_mgmt_module = function () {
         }
     }
 
-    /* Meetings Sign In */
-    async function incTotalMeetings(account_id, account_data) {
-        account_data.total_meetings = account_data.total_meetings++;
-        return await sql_pool.query('UPDATE `account` SET ? WHERE id = ?', [account_data, account_id]);
+    /* Meetings Set */
+    async function meetingSet(account_id, val) {
+        data = retrieve_by_id(id); // get data from account
+        data.total_meetings = val; // set total_meetings
+        return await sql_pool.query('UPDATE `account` SET ? WHERE id = ?', [data, account_id]);
+    }
+    
+    /* Meetings Get */
+    async function meetingGet(account_id) {
+        data = retrieve_by_id(id); // get data from account
+        return data.total_meetings; //return total_meetings
     }
 
-    /* Meetings Reset */
-    async function rstTotalMeetings(account_id, account_data) {
-        account_data.total_meetings = 0;
-        return await sql_pool.query('UPDATE `account` SET ? WHERE id = ?', [account_data, account_id]);
+    /* Meetings Inc */
+    async function meetingInc(account_id, val) {
+        data = retrieve_by_id(account_id);
+        data.total_meetings++;
+        return await sql_pool.query('UPDATE `account` SET ? WHERE id = ?', [data, account_id]);
     }
 
-        
+    /* Meetings Cond Inc */
+    async function meetingCondInc(account_id, val) {
+
+    }
+    
+    /* Meeting Reset all */
+    async function meetingRstAll(account_id, val) {
+    
+    }
+
+    /* Meeting Inc All */
+    async function meetingIncAll(account_id, val) {
+        //session_table = await queryAsync('SELECT * FROM `session`'); //get all ids from account table
+        //for(i = 0; i<session_table.length;i++)
+    
+    }
 
     async function update_account(account_id, account_data) {
         // explicitly prevent primary keys from being clobbered
@@ -331,8 +354,12 @@ let db_mgmt_module = function () {
         delete_tile: delete_tile,
         custom_tiles: custom_tiles,
         tile_click: tile_click,
-        rstTotalMeetings: rstTotalMeetings,
-        incTotalMeetings: incTotalMeetings,
+        meetingSet: meetingSet,
+        meetingGet: meetingGet,
+        meetingInc: meetingInc,
+        meetingCondInc: meetingCondInc,
+        meetingRstAll: meetingRstAll,
+        meetingIncAll: meetingIncAll,
     });
 };
 

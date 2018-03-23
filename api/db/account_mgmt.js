@@ -139,6 +139,53 @@ let account_mgmt_module = (function() {
 		return /^([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22))*\x40([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d))*$/.test( email ); // eslint-disable-line
 	}
 
+
+
+
+
+
+    /* Meetings Set */
+    async function meetingSet(account_id, val) {
+        data = db_mgmt.retrieve_by_id(id); // get data from account
+        data.total_meetings = val; // set total_meetings
+		return await db_mgmt.update_account(account_id, data);
+    }
+	
+    /* Meetings Get */
+    async function meetingGet(account_id) {
+        data = db_mgmt.retrieve_by_id(id); // get data from account
+        return await data.total_meetings; //return total_meetings
+    }
+
+    /* Meetings Inc */
+    async function meetingInc(account_id) {
+        data = db_mgmt.retrieve_by_id(account_id);
+        data.total_meetings++;
+		return await db_mgmt.update_account(account_id, data);
+    }
+
+    /* Meetings Cond Inc */
+    async function meetingCondInc(account_id) {
+		
+    }
+    
+    /* Meeting Reset all */
+    async function meetingRstAll() {
+		
+    }
+
+    /* Meeting Inc All */
+    async function meetingIncAll() {
+        //session_table = await queryAsync('SELECT * FROM `session`'); //get all ids from account table
+        //for(i = 0; i<session_table.length;i++)
+		
+    }
+
+
+
+
+
+
 	// Revealing Module: Return public interface
 	return {
 		// Public methods here
@@ -148,6 +195,12 @@ let account_mgmt_module = (function() {
 		generate_session_token: generate_session_token,
 		validate_session: db_mgmt.get_session,
 		get_account_by_id: db_mgmt.retrieve_by_id,
+		meetingSet: meetingSet,
+        meetingGet: meetingGet,
+        meetingInc: meetingInc,
+        meetingCondInc: meetingCondInc,
+        meetingRstAll: meetingRstAll,
+        meetingIncAll: meetingIncAll,
 	};
 });
 

@@ -35,6 +35,18 @@ routes.post('/user/register', async (req, res, next) => {
 	}
 });
 
+
+routes.post('/user/profile', async (req, res, next) => {
+
+	try {
+		account_mgmt.meetingSet(req.meetings);
+		res.status(200).send('Success');
+	} catch (error){
+		return next(error);
+	}
+
+});
+
 routes.post('/user/login', async (req, res, next) => {
 	let login_data = {
 		'email': req.body.email,
