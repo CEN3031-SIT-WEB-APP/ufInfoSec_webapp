@@ -149,4 +149,9 @@ routes.post('/user/profile/:user_id', async function(req, res, next) {
 	update_user_profile(req.params.user_id, req, res, next);
 });
 
+routes.post('/user/profile', async function(req, res, next) {
+	console.log(req.body.account_id);
+	return res.status(200);
+});
+
 module.exports = routes;
