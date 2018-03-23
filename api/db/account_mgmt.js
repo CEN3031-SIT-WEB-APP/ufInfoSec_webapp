@@ -140,10 +140,7 @@ let account_mgmt_module = (function() {
 	}
 
 
-
-
-
-
+	
     /* Meetings Set */
     async function meetingSet(account_id, val) {
         data = db_mgmt.retrieve_by_id(id); // get data from account
@@ -166,19 +163,32 @@ let account_mgmt_module = (function() {
 
     /* Meetings Cond Inc */
     async function meetingCondInc(account_id) {
-		
+		var meetingDay = 1; //Monday
+		var meetingTime = 12+6; //6pm
+		var date = new Date;
+		var currHour = date.getHours();
+		var currDay = date.getDay();
+		if(meetingDay != currDay || meetingTime != currHour){
+			return;
+		}
+		meetingInc(account_id);
+		return;
     }
     
     /* Meeting Reset all */
     async function meetingRstAll() {
-		
+		session_table = await queryAsync('SELECT id FROM `account`'); //get all ids from account table	
+		for(i = 0; i<session_table.length;i++){
+			meetingSet(session_table[i],0);
+		}	
     }
 
     /* Meeting Inc All */
     async function meetingIncAll() {
-        //session_table = await queryAsync('SELECT * FROM `session`'); //get all ids from account table
-        //for(i = 0; i<session_table.length;i++)
-		
+        session_table = await queryAsync('SELECT id FROM `session`'); //get all ids from account table
+        for(i = 0; i<session_table.length;i++){
+			meetingInc(session_table[i]);
+		}
     }
 
 
