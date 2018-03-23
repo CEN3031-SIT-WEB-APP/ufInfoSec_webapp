@@ -1,6 +1,6 @@
 <div class="container container-fluid full-height">
   <div class="row">
-    <div class="col-md-5 col-md-offset-1">
+    <div class="col-md-6 col-md-offset-1">
       <div id="profileTitle" class="main_header">{{ this.getTitle() }}
       </div>
       <br>
@@ -31,7 +31,16 @@
 
           <br>
 
+          <label class='input-label'>Meetings Attended:</label>
+          <p title="Signed in to {{this.getProfile().registration_date | date : 'medium'}}">{{ this.getProfile().registration_date | timeAgo }}</p> //NEED TO CHANGE REGISTRATION DATA VARIABLES TO MEETING SIGNED IN VARIABLES
+
+          <br>
+
           <a id="updateProfileButton" routerLink="{{ this.getEditLink() }}" class="btn btn-info" role="button">Update Profile</a>
+
+          <br>
+
+          <button class="btn btn-success" (click)="meetingSignIn()">Sign in to meeting</button>
         </div>
       </div>
     </div>
