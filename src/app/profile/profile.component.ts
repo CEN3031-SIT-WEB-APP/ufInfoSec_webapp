@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-
+import { NgForm, FormGroup, FormBuilder, FormsModule, Validators, FormArray, FormControl } from '@angular/forms';
 import { SessionService } from '../session.service';
 
 @Component({
@@ -8,6 +8,7 @@ import { SessionService } from '../session.service';
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.css']
 })
+
 export class ProfileComponent implements OnInit {
   // profile holds the profile data we are currently viewing
   private profile;
