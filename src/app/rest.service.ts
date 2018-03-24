@@ -139,9 +139,8 @@ export class RestService {
   }
 
 
-  public meetingSet(account_id, val){
+  public meetingSet(account_id, val: number){
     return this.post('/user/profile', {account_id:account_id, val:val});
   }
-
 
 }
