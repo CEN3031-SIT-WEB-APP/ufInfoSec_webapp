@@ -140,10 +140,22 @@ let account_mgmt_module = (function() {
 	}
 
 
+	/* Get ID of account */
+	/*
+	async function getID(account_name, account_email){
+		data = db_mgmt.retrieve(account_email);
+		if(data.full_name == account_name){
+			console.log(data.id);
+		}
+		return data.id;
+	}
+	*/
 	
     /* Meetings Set */
     async function meetingSet(account_id, val) {
-        data = db_mgmt.retrieve_by_id(id); // get data from account
+		console.log("POOOOOOP");
+        //data = db_mgmt.retrieve_by_id(id); // get data from account
+        data = db_mgmt.retrieve(account_id); // get data from account via email
         data.total_meetings = val; // set total_meetings
 		return await db_mgmt.update_account(account_id, data);
     }
@@ -190,10 +202,6 @@ let account_mgmt_module = (function() {
 			meetingInc(session_table[i]);
 		}
     }
-
-
-
-
 
 
 	// Revealing Module: Return public interface

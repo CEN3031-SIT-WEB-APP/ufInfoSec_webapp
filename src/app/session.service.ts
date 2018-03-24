@@ -120,7 +120,8 @@ export class SessionService {
   public meetingSignIn() {
 
     console.log("gets here");
-    this.restService.meetingSet(1,1);
+    console.log((this.getProfile().email));
+    this.restService.meetingSet(this.getProfile().email,1);
   }
 
   /*
