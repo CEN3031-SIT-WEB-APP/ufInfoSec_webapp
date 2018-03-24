@@ -1,6 +1,6 @@
 <div class="container container-fluid full-height">
   <div class="row">
-    <div class="col-md-5 col-md-offset-1">
+    <div class="col-md-6 col-md-offset-1">
       <div id="profileTitle" class="main_header">{{ this.getTitle() }}
       </div>
       <br>
@@ -31,7 +31,14 @@
 
           <br>
 
+          <label class='input-label'>Meetings Attended:</label>
+          <p title="Registered on {{this.getProfile().registration_date | date : 'medium'}}">{{ this.getProfile().registration_date | timeAgo }}</p>
+
+          <br>
+
           <a id="updateProfileButton" routerLink="{{ this.getEditLink() }}" class="btn btn-info" role="button">Update Profile</a>
+
+          <button class="btn btn-success SignInButton" (click)="MeetingSignIn()">Sign In</button>
         </div>
       </div>
     </div>

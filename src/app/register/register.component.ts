@@ -82,7 +82,7 @@ export class RegisterComponent implements OnInit {
           this.notifications.generic_error = true;
         }
       },
-      // called if there was an error while creatign the account
+      // called if there was an error while creating the account
       err => {
         this.notifications.bad_request = true;
       }

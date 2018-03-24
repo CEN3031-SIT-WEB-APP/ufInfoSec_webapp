@@ -1,11 +1,11 @@
 <div class="container container-fluid full-height">
     <div class="row">
-        <div class="col-md-5 col-md-offset-1">
+        <div class="col-md-12 col-md-offset-1">
             <div class="main_header">{{this.title}}</div>
             <br>
             <!-- Notification panel -->
             <div class="row">
-                <div class="col-xs-12">
+                <div class="col-md-6-12">
                     <!-- Generic Error -->
                     <div *ngIf="notifications.generic_error" id="genericErrorAlert" class="alert alert-danger alert-dismissible" role="alert">
                         <button type="button" class="close" (click)="notifications.generic_error = false">
@@ -37,7 +37,7 @@
             </div>
 
             <div class="row">
-                <div class="col-md-10 col-md-offset-1">
+                <div class="col-md-6 col-md-offset-1">
                     <form (ngSubmit)="update_profile()" [formGroup]="formData">
                         <!-- Name Submission -->
                         <div class="form-group">

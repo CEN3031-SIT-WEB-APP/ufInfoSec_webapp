@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { NgForm, FormGroup, FormBuilder, FormsModule } from '@angular/forms';
+import { NgForm, FormGroup, FormBuilder, FormsModule, Validators, FormArray, FormControl } from '@angular/forms';
 import { RestService } from '../rest.service';
+import {NgbModal, ModalDismissReasons} from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
     selector: 'app-admin',
@@ -13,6 +14,7 @@ export class AdminComponent implements OnInit {
     formData: FormGroup;
     private users;
     private customTiles;
+    private nums = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20];
 
     constructor(
         private requests: RestService
@@ -82,6 +84,10 @@ export class AdminComponent implements OnInit {
     public deleteTile(id, index) {
         this.requests.deleteTile(id); // backend delete (uniquely identified by id)
         this.customTiles.splice(index, 1); // delete frontend element
+    }
+
+    public getNums() {
+    return this.nums;
     }
 
 }
