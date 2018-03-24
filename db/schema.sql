@@ -8,6 +8,7 @@ CREATE TABLE `account` (
 	`registration_ip` varchar(40) NOT NULL,
 	`registration_date` DATETIME NOT NULL,
 	`last_visit` DATETIME,
+	`total_meetings` INT NOT NULL DEFAULT '0',
 	`mass_mail_optin` INT(1) NOT NULL,
 	`grad_date` varchar(50) NOT NULL,
 	`rank` INT NULL,

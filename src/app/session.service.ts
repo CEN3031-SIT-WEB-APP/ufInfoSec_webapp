@@ -117,4 +117,10 @@ export class SessionService {
     return this.restService.update(formData, url);
   }
 
+  /*
+  public meetingSet(formData: FormGroup, val){
+    return this.restService.meetingSet(formData, val);
+  }
+  */
+
 }

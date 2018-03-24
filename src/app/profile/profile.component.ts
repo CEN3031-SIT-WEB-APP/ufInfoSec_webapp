@@ -62,4 +62,10 @@ export class ProfileComponent implements OnInit {
   public getProfile() {
     return this.profile;
   }
+
+  /*
+  public setMeetings(val){
+    this.sessionService.meetingSet(this.getProfile(),5);
+  }
+  */
 }
