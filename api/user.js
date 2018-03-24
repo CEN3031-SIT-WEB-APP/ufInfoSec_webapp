@@ -170,6 +170,7 @@ routes.post('/user/signin', async function(req, res, next) {
 			await account_mgmt.meetingCondInc(req.session.account_id);		
 			break;
 		default:
+			console.log("meeting: that func doesnt exist");
 			break;
 	}
 
