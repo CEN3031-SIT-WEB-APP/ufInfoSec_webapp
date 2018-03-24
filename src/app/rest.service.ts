@@ -139,10 +139,9 @@ export class RestService {
   }
 
 
-  public meetingSet(account_id, val){
-    console.log('gets here 2');
+  public meetingSet(account_id, val: number){
+    console.log('gets here 4');
     return this.post('/user/profile', {account_id:account_id, val:val});
   }
-
 
 }

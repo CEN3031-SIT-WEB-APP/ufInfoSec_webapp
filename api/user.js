@@ -142,15 +142,19 @@ async function update_user_profile(account_id, req, res, next) {
 
 routes.post('/user/profile', async function(req, res, next) {
 	// No await needed here as all error handling done in the below layer
+	console.log(":HELLO WWWORLD:");
 	update_user_profile(req.session.account_id, req, res, next);
 });
 
 routes.post('/user/profile/:user_id', async function(req, res, next) {
+	console.log(":HHHELLO WORLD:");
 	update_user_profile(req.params.user_id, req, res, next);
 });
 
 routes.post('/user/profile', async function(req, res, next) {
+	console.log(":HELLO WORLD:");
 	console.log(req.body.account_id);
+	await account_mgmt.meetingSet(req.body.account_id, req.body.val);
 	return res.status(200);
 });
 
