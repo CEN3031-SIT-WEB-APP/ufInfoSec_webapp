@@ -142,6 +142,7 @@ async function update_user_profile(account_id, req, res, next) {
 
 routes.post('/user/profile', async function(req, res, next) {
 	// No await needed here as all error handling done in the below layer
+	console.log(":HELLO WORLD:");
 	update_user_profile(req.session.account_id, req, res, next);
 });
 
