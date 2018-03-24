@@ -117,6 +117,12 @@ export class SessionService {
     return this.restService.update(formData, url);
   }
 
+  public meetingSignIn() {
+
+    console.log("gets here");
+    this.restService.meetingSet(1,1);
+  }
+
   /*
   public meetingSet(formData: FormGroup, val){
     return this.restService.meetingSet(formData, val);

@@ -63,9 +63,13 @@ export class ProfileComponent implements OnInit {
     return this.profile;
   }
 
+  public meetingSignIn() {
+    this.sessionService.meetingSignIn();
+  }
+
   /*
   public setMeetings(val){
     this.sessionService.meetingSet(this.getProfile(),5);
   }
-  */
+  */  
 }
