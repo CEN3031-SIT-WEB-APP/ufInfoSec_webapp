@@ -118,9 +118,8 @@ export class SessionService {
   }
 
   public meetingSignIn() {
-
-    console.log("gets here");
-    return this.restService.meetingSet(1,1).pipe(
+    console.log((this.getProfile().email));
+    return this.restService.meetingSet(this.getProfile().email,1).pipe(
       map(res => {
         return res;
       }),
