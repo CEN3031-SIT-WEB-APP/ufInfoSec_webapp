@@ -64,7 +64,14 @@ export class ProfileComponent implements OnInit {
   }
 
   public meetingSignIn() {
-    this.sessionService.meetingSignIn();
+    this.sessionService.meetingSignIn().subscribe(
+      res => {
+          alert('You have successfully signed in!');
+      },
+      err => {
+        alert('An error was encountered');
+      }
+    );
   }
 
   /*

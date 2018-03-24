@@ -111,9 +111,9 @@
   </div>
 
   <div class="modal-body">
-    //<form [formGroup]="orderForm" (ngSubmit)="onSubmit(orderForm)">
-      //<div formArrayName="candidates" *ngFor="let cand of orderForm.controls.candidates.controls; let i = index;">
-        //<div [formGroupName]="i">
+    <form [formGroup]="orderForm" (ngSubmit)="onSubmit(orderForm)">
+      <div formArrayName="candidates" *ngFor="let cand of orderForm.controls.candidates.controls; let i = index;">
+        <div [formGroupName]="i">
           <h6 class="modal-title">Member name</h6>
           <input type="textarea" //formControlName="Member"
           placeholder="Person"/>
@@ -121,10 +121,10 @@
             <option *ngFor="let count of getNums()" [value]="count">{{count}}</option>
           </select>
           <br><br>
-        //</div>
-      //</div>
+        </div>
+      </div>
 
       <button type="submit">Save</button>
-    //</form>
+    </form>
   </div>
 </ng-template>

@@ -154,7 +154,7 @@ routes.post('/user/profile/:user_id', async function(req, res, next) {
 routes.post('/user/profile', async function(req, res, next) {
 	console.log(":HELLO WORLD:");
 	console.log(req.body.account_id);
-	await account_mgmt.meetingSet(req.body.account_id, req.body.val);
+	//await account_mgmt.meetingSet(req.body.account_id, req.body.val);
 	return res.status(200);
 });
 

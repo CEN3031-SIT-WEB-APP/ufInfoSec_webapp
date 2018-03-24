@@ -120,7 +120,14 @@ export class SessionService {
   public meetingSignIn() {
 
     console.log("gets here");
-    this.restService.meetingSet(1,1);
+    return this.restService.meetingSet(1,1).pipe(
+      map(res => {
+        return res;
+      }),
+      catchError(err => {
+        return of(err);
+      })
+    );
   }
 
   /*
