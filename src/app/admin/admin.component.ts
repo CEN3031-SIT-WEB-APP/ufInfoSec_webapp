@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { NgForm, FormGroup, FormBuilder, FormsModule, Validators, FormArray, FormControl } from '@angular/forms';
 import { RestService } from '../rest.service';
 import {NgbModal, ModalDismissReasons} from '@ng-bootstrap/ng-bootstrap';
+import { SessionService } from '../session.service';
 
 @Component({
     selector: 'app-admin',
@@ -14,11 +15,16 @@ export class AdminComponent implements OnInit {
     formData: FormGroup;
     private users;
     private customTiles;
-    private nums = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20];
+
+    public signInForm: FormGroup;
+    signInNotifications = { emptyField: false }
+    private nums = ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20'];
 
     constructor(
         private requests: RestService,
-        private modalService: NgbModal
+        private modalService: NgbModal,
+        private formBuilder: FormBuilder,
+        private sessionService: SessionService
     ) { }
 
     ngOnInit() {
@@ -45,6 +51,10 @@ export class AdminComponent implements OnInit {
             },
             failure => { console.log(failure); }
         );
+
+        this.signInForm = this.formBuilder.group({
+            signInInfo: this.formBuilder.array([ this.createSignInArr()])
+        });
 
     }
 
@@ -90,13 +100,67 @@ export class AdminComponent implements OnInit {
         this.customTiles.splice(index, 1); // delete frontend element
     }
 
-    public getNums() {
-    return this.nums;
-    }
-
-    // Opens the popup window for the admin to use
+// ------- modal stuff --------
+    
+    //opens the modal
     public open(content: any) {
         this.modalService.open(content);
     }
 
+    createSignInArr(): FormGroup {
+        return this.formBuilder.group({
+            member: ['',[Validators.required]],
+            signInCount: ['', [Validators.required]]
+        });
+    }
+
+    public addItemToSignInArray(): void {
+        const control = <FormArray>this.signInForm.controls['signInInfo'];
+        control.push(this.createSignInArr());
+    }
+
+
+    private emptySignInForm(form: any) {
+        for (let x of form.signInInfo) {
+            if (x.member === '') {
+                return true;
+            }
+            if (x.signInCount.length === 0) {
+                return true;
+            }
+        }
+    }
+
+    //called when submit button
+    public onSignInSubmit(formValue: any) {
+        if (this.emptySignInForm(formValue.value)) {
+          this.signInNotifications.emptyField = true;
+          return;
+        }
+        //this.sessionService.setSignInCount(this.signInForm).subscribe(
+          //res => {
+            //if (res === 'Success') {
+              //  alert('You have successfully changed the members sign in info');
+            //}
+            //else {
+              //  alert('There was a problem. Please contact the developers')
+            //}
+          //},
+          //err => {
+            //alert('Something went wrong.  Please contact the developers');
+          //}
+        //);
+    }
+
+    public onSignInCountSubmit (formValue: any) {
+        if (this.emptySignInForm(formValue.value)) {
+          this.signInNotifications.emptyField = true;
+          return;
+        }
+        //MAKE SESSION SERVICE FUNCTION HERE
+    }
+
+    public getNums() {
+        return this.nums;
+    }
 }

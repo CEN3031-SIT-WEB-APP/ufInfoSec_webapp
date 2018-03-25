@@ -129,10 +129,14 @@ export class SessionService {
     );
   }
 
-  /*
-  public meetingSet(formData: FormGroup, val){
-    return this.restService.meetingSet(formData, val);
-  }
-  */
+
+   //data = {email:email, val:5};
+    //func = "meeting set";
+    //(data, func)
+
+    //(profile.email, meetingssetto)
+
+  //public meetingCountSet()
+
 
 }
