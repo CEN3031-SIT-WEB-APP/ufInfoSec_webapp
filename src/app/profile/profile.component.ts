@@ -35,6 +35,7 @@ export class ProfileComponent implements OnInit {
 
       // get the resolved data
       const routeProfile = this.route.snapshot.data.profile;
+      console.log(routeProfile);
       // as long as the resolved data isn't null, update the cached profile
       // information with the resolved data
       if (routeProfile != null) {
