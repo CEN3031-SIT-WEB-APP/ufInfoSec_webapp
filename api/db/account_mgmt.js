@@ -36,11 +36,21 @@ let account_mgmt_module = (function() {
 			throw new createError.BadRequest('Attempted to create an account with an invalid email: ' +
 				registration_data.email
 			);
+		}
+		
+		/* Validate the ufl email address */
+		else if (!(isEmail(registration_data.ufl_email))) {
+			throw new createError.BadRequest('Attempted to create an account with an invalid ufl email: ' +
+				registration_data.email
+			);
+		}
+		
 		/* If the email checked out */
-		} else {
+		else {
 			// Create a slightly modified new_record out of the registration data
 			let new_record = {
 				'email': registration_data.email,	// Copied verbatim
+				'ufl_email': registration_data.ufl_email,	// Copied verbatim, verbatim
 				'password': {		// Will be hashed and salted, null for now
 					'salt': null,
 					'hash': null,
@@ -68,17 +78,33 @@ let account_mgmt_module = (function() {
 					+ login_data.email);
 		} else {
 			/* Otherwise, attempt to retrieve the account record from the database */
-			const result = await db_mgmt.retrieve(login_data.email);
+			//const result;
+			try{
+				const result = await db_mgmt.retrieve(login_data.email);
+				
+				/* If there was no error, verify the given credentials against those retrieved from the database */
+				let authenticated = verify_credentials(login_data.password, result.salt, result.hash);
 
-			/* If there was no error, verify the given credentials against those retrieved from the database */
-			let authenticated = verify_credentials(login_data.password, result.salt, result.hash);
+				if (!authenticated) {
+					throw new createError.BadRequest('Attempted to authenticate an ' +
+							'account with the wrong credentials: ' + login_data.email);
+				}
 
-			if (!authenticated) {
-				throw new createError.BadRequest('Attempted to authenticate an ' +
-						'account with the wrong credentials: ' + login_data.email);
+				return result.id;
+			} catch(error) {
+				const result = await db_mgmt.ufl_retrieve(login_data.ufl_email);	
+				
+				/* If there was no error, verify the given credentials against those retrieved from the database */
+				let authenticated = verify_credentials(login_data.password, result.salt, result.hash);
+
+				if (!authenticated) {
+					throw new createError.BadRequest('Attempted to authenticate an ' +
+							'account with the wrong credentials: ' + login_data.email);
+				}
+			
+				return result.id;
 			}
-
-			return result.id;
+			
 		}
 	}
 
