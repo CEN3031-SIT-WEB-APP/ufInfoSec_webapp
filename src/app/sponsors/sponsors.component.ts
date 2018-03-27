@@ -1,15 +1,22 @@
 import { Component, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'app-sponsors',
-  templateUrl: './sponsors.component.html',
-  styleUrls: ['./sponsors.component.css']
+  	selector: 'app-sponsors',
+  	templateUrl: './sponsors.component.html',
+ 	styleUrls: ['./sponsors.component.css']
 })
 export class SponsorsComponent implements OnInit {
 
-  constructor() { }
+	private title = 'Sponsors\' Page';
 
-  ngOnInit() {
-  }
+  	constructor() { }
+
+  	ngOnInit() {
+  	}
+
+  	// get page title
+    public getTitle() {
+        return this.title;
+    }
 
 }

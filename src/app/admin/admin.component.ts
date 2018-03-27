@@ -20,6 +20,8 @@ export class AdminComponent implements OnInit {
     signInNotifications = { emptyField: false }
     private nums = ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20'];
 
+    private title = 'Admin Page';
+
     constructor(
         private requests: RestService,
         private modalService: NgbModal,
@@ -28,9 +30,6 @@ export class AdminComponent implements OnInit {
     ) { }
 
     ngOnInit() {
-
-
-        //this.requests.meetingSet(5, 5);
 
         const fb: FormBuilder = new FormBuilder();
         this.formData = fb.group({ name: [], description: [], link: [] });
@@ -137,19 +136,17 @@ export class AdminComponent implements OnInit {
           this.signInNotifications.emptyField = true;
           return;
         }
-        //this.sessionService.setSignInCount(this.signInForm).subscribe(
-          //res => {
-            //if (res === 'Success') {
-              //  alert('You have successfully changed the members sign in info');
+        let data = {email:formValue.value.signInInfo[0].member, val:parseInt(formValue.value.signInInfo[0].signInCount)};
+        let func = "meeting set";
+        this.sessionService.meetingSignIn(data, func).subscribe(
+            //res => {
+                //if (res === "Success") {alert('You have successfully signed in!');}
+                //else { alert('There was a problem signing in');}
+            //},
+            //err => {
+                //alert('An error was encountered');
             //}
-            //else {
-              //  alert('There was a problem. Please contact the developers')
-            //}
-          //},
-          //err => {
-            //alert('Something went wrong.  Please contact the developers');
-          //}
-        //);
+        );
     }
 
     public onSignInCountSubmit (formValue: any) {
@@ -162,5 +159,10 @@ export class AdminComponent implements OnInit {
 
     public getNums() {
         return this.nums;
+    }
+
+    // get page title
+    public getTitle() {
+        return this.title;
     }
 }
