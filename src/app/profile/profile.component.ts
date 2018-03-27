@@ -68,7 +68,8 @@ export class ProfileComponent implements OnInit {
     let func = "meeting cond inc";
     this.sessionService.meetingSignIn(data, func).subscribe(
       res => {
-        alert('You have successfully signed in!');
+        if (res == "Success") {alert('You have successfully signed in!');}
+        else { alert('There was a problem signing in');}
       },
       err => {
         alert('An error was encountered');
