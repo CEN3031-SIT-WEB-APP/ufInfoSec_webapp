@@ -64,11 +64,11 @@ export class ProfileComponent implements OnInit {
   }
 
   public meetingSignIn() {
-    let data = {email:this.profile.email, val:5};
-    let func = "meeting set";
+    let data = {email:this.profile.email, val:1};
+    let func = "meeting cond inc";
     this.sessionService.meetingSignIn(data, func).subscribe(
       res => {
-          alert('You have successfully signed in!');
+        alert('You have successfully signed in!');
       },
       err => {
         alert('An error was encountered');
