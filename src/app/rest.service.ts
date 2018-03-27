@@ -138,10 +138,8 @@ export class RestService {
     return this.get('/writeups/files/uploaded');
   }
 
-
-  public meetingSet(account_id, val: number){
-    console.log('gets here 4');
-    return this.post('/user/profile', {account_id:account_id, val:val});
+  public meetingSet(data, func:string){
+    return this.post('/user/signin', {data:data, func:func});
   }
 
 }

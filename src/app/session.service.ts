@@ -117,9 +117,8 @@ export class SessionService {
     return this.restService.update(formData, url);
   }
 
-  public meetingSignIn() {
-    console.log((this.getProfile().email));
-    return this.restService.meetingSet(this.getProfile().email,1).pipe(
+  public meetingSignIn(data, func:string) {
+    return this.restService.meetingSet(data,func).pipe(
       map(res => {
         return res;
       }),

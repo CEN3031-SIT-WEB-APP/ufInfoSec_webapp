@@ -64,7 +64,9 @@ export class ProfileComponent implements OnInit {
   }
 
   public meetingSignIn() {
-    this.sessionService.meetingSignIn().subscribe(
+    let data = {email:this.profile.email, val:5};
+    let func = "meeting set";
+    this.sessionService.meetingSignIn(data, func).subscribe(
       res => {
           alert('You have successfully signed in!');
       },

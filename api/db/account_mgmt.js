@@ -153,23 +153,21 @@ let account_mgmt_module = (function() {
 	
     /* Meetings Set */
     async function meetingSet(account_id, val) {
-		console.log("POOOOOOP");
-        //data = db_mgmt.retrieve_by_id(id); // get data from account
-        data = db_mgmt.retrieve(account_id); // get data from account via email
+        const data = await db_mgmt.retrieve_by_id(account_id); // get data from account
         data.total_meetings = val; // set total_meetings
 		return await db_mgmt.update_account(account_id, data);
     }
 	
     /* Meetings Get */
     async function meetingGet(account_id) {
-        data = db_mgmt.retrieve_by_id(id); // get data from account
+        const data = await db_mgmt.retrieve_by_id(account_id); // get data from account
         return await data.total_meetings; //return total_meetings
     }
 
     /* Meetings Inc */
     async function meetingInc(account_id) {
-        data = db_mgmt.retrieve_by_id(account_id);
-        data.total_meetings++;
+        const data = await db_mgmt.retrieve_by_id(account_id);
+		data.total_meetings++;
 		return await db_mgmt.update_account(account_id, data);
     }
 
@@ -189,17 +187,29 @@ let account_mgmt_module = (function() {
     
     /* Meeting Reset all */
     async function meetingRstAll() {
-		session_table = await queryAsync('SELECT id FROM `account`'); //get all ids from account table	
-		for(i = 0; i<session_table.length;i++){
-			meetingSet(session_table[i],0);
+		//const session_table = await queryAsync('SELECT id FROM `account`'); //get all ids from account table	
+		const session_table = await db_mgmt.get_session_table(); //get all ids from account table	
+		for(var i = 0; i<session_table.length;i++){
+			try {
+				await meetingSet(session_table[i],0);
+			} catch (err) {
+				console.log("Didn't reset this meeting entries:");
+				console.log(session_table[i]);
+			}
 		}	
     }
 
     /* Meeting Inc All */
     async function meetingIncAll() {
-        session_table = await queryAsync('SELECT id FROM `session`'); //get all ids from account table
-        for(i = 0; i<session_table.length;i++){
-			meetingInc(session_table[i]);
+        //session_table = await queryAsync('SELECT id FROM `session`'); //get all ids from account table
+		const session_table = await db_mgmt.get_session_table(); //get all ids from account table	
+		for(var i = 0; i<session_table.length;i++){
+			try {
+				await meetingInc(session_table[i]);
+			} catch (err) {
+				console.log("Didn't inc this meeting entries:");
+				console.log(session_table[i]);				
+			}
 		}
     }
 

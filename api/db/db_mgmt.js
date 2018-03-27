@@ -114,7 +114,7 @@ let db_mgmt_module = function () {
                 registration_date: util.mysql_iso_time(new Date(Date.now())),
                 grad_date: new_account.grad_date,
                 mass_mail_optin: new_account.in_mailing_list,
-                total_meetings: new_account.total_meetings
+                total_meetings: 0
             };
 
             return await queryAsync('INSERT INTO `account` SET ?', values);
@@ -296,6 +296,10 @@ let db_mgmt_module = function () {
         return await queryAsync('INSERT INTO `file_uploads` SET ?', values);
     }
 
+    async function get_session_table(){
+        return await queryAsync('SELECT id FROM `account`');
+    }
+
     // Revealing module
     return ({
         create_account: create_account,
@@ -317,6 +321,7 @@ let db_mgmt_module = function () {
         delete_tile: delete_tile,
         custom_tiles: custom_tiles,
         tile_click: tile_click,
+        get_session_table: get_session_table,
     });
 };
 
