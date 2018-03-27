@@ -19,6 +19,7 @@
           <p>{{ this.getProfile().grad_date }}</p>
           <br>
 
+          <a id="updateProfileButton" routerLink="{{ this.getEditLink() }}" class="btn btn-info" role="button">Update Profile</a>
           
         
         </div>
@@ -38,9 +39,8 @@
 
           <br>
 
-          <a id="updateProfileButton" routerLink="{{ this.getEditLink() }}" class="btn btn-info" role="button">Update Profile</a>
-
           <button class="btn btn-success SignInButton" (click)="meetingSignIn()">Sign In</button>
+          
         </div>
       </div>
     </div>
