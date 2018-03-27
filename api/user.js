@@ -154,7 +154,7 @@ routes.post('/user/signin', async function(req, res, next) {
 	switch (req.body.func) {
 		case "meeting set":
 			//console.log(req.body.data.email);
-			await account_mgmt.meetingInc(req.session.account_id, req.body.data.val);
+			await account_mgmt.meetingSet(req.session.account_id, req.body.data.val);
 			//await account_mgmt.meetingSet(req.body.data.email, req.body.data.val);
 			break;
 		case "meeting inc":
@@ -173,7 +173,6 @@ routes.post('/user/signin', async function(req, res, next) {
 			console.log("meeting: that func doesnt exist");
 			break;
 	}
-
 	//console.log(await account_mgmt.meetingGet(req.session.account_id));
 	return res.status(200);
 });
