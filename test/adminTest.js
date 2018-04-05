@@ -1,25 +1,21 @@
 'use strict';
-const expect = require('chai').expect;
+var chai = require('chai');
+var expect = require('chai').expect;
+var should = require('chai').should;
+var request = require('request');
+var routes = require ('../api/admin.js');
 
-describe('admin.js', function () {
 
-    describe('function_name()', function () {
+describe('./admin.js', function (done) {
 
-        it('passes test', function () {
+    describe('get requests', function (done) {
 
-            expect(function () { }).to.not.throw();
-
-            const response1 = 'function_call';
-            expect(response1).to.equal('function_call');
-            expect(response1).to.be.a('string');
-            expect(response1).to.have.lengthOf(13);
-            expect(response1).to.include('function');
-
-            const response2 = 'function_call';
-            expect(response2).to.equal('function_call');
-
-        });
-
+        request(routes)
+            .get('/admin/list_users')
+            .expect('Content-Type', /json/)
+            .expect(data).to.be.an('array').that.contains.something.like('id');
+            done();
+            
     });
 
 });
