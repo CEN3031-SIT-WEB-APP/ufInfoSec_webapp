@@ -1,7 +1,7 @@
 'use strict';
 
 const routes = require('express').Router(); // eslint-disable-line new-cap
-const util = require.main.require('./util');
+const util = require.main.require('util');
 
 /* App-specific module imports */
 const account_mgmt = require('./db/account_mgmt.js');

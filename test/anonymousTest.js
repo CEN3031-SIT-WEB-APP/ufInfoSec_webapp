@@ -1,25 +1,22 @@
 'use strict';
-const expect = require('chai').expect;
+var expect = require('chai').expect;
+var app = require('../app');
+var request = require('supertest');
 
-describe('anonymous.js', function () {
+const userCredentials = {
+    email: 'johnny@ufl.edu',
+    password: 'Family49'
+}
 
-    describe('function_name()', function () {
+var authenticatedUser = request.agent(app);
 
-        it('passes test', function () {
-
-            expect(function () { }).to.not.throw();
-
-            const response1 = 'function_call';
-            expect(response1).to.equal('function_call');
-            expect(response1).to.be.a('string');
-            expect(response1).to.have.lengthOf(13);
-            expect(response1).to.include('function');
-
-            const response2 = 'function_call';
-            expect(response2).to.equal('function_call');
-
-        });
-
+before(function(done){
+  authenticatedUser
+    .post('/user/login')
+    .send(userCredentials)
+    .end(function(err, response){
+      expect(response.statusCode).to.equal(200);
+      expect('Location', '/home');
+      done();
     });
-
 });
