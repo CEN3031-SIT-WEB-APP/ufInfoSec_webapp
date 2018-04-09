@@ -41,6 +41,8 @@ routes.post('/user/login', async (req, res, next) => {
 		'password': req.body.password,
 	};
 
+	console.log('here');
+
 	try {
 		const account_id = await account_mgmt.authenticate(login_data);
 		const cookie = await account_mgmt.generate_session_token(account_id, req.ip,

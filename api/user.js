@@ -1,6 +1,13 @@
 'use strict';
 
 const routes = require('express').Router(); // eslint-disable-line new-cap
+var path = require('path');
+
+require.main.require = function(name) {
+	var newPath = path.join(__dirname, '../', name );
+	return require(newPath);
+}
+
 const util = require.main.require('util');
 
 /* App-specific module imports */

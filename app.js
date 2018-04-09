@@ -82,3 +82,9 @@ app.listen(PORT, function() {
 
 	console.log('[REALM ' + REALM + '] UFSIT Portal now accepting requests at ' + url);
 });
+
+const server = app.listen(3000, function(){
+    console.log("I believe something is listening on port 3000, but because I have no experience in javascript i can't guarantee that."); //need to export server from app.js
+}); 
+
+module.exports = server;

@@ -11,7 +11,7 @@
     "mon": "type -P \"nodemon\" && nodemon app.js || echo \"Nodemon not installed.\"",
     "test-front": "ng test",
     "test-back": "mocha || true",
-    "test": "node_modules/mocha/bin/mocha ./test",
+    "test": "node_modules/mocha/bin/mocha ./test/anonymousTest.js",
     "lint": "eslint",
     "build": "ng build --aot --prod",
     "postinstall": "npm run build"
@@ -76,6 +76,7 @@
     "karma-jasmine": "~1.1.0",
     "karma-jasmine-html-reporter": "^0.2.2",
     "mocha": "^5.0.5",
+    "path": "^0.12.7",
     "protractor": "~5.1.2",
     "superagent": "^3.8.2",
     "supertest": "^3.0.0",
