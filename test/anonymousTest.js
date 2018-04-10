@@ -13,7 +13,7 @@ const userCredentials = {
 }
 
 describe('anonymous.js', function() {
-    var host = "http://localhost:8080/anonymous.js";
+    var host = "http://localhost:8080/anonymous.js/index.html";
     var path = "/user/login";
 
     it('should send parameters to : /path POST', function(done) {
