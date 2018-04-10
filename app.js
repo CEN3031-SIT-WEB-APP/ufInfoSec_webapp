@@ -14,7 +14,7 @@ const morgan = require('morgan');
 const bodyParser = require('body-parser');
 
 const BASE_URL = 'https://portal.ufsit.org';
-const PORT = 8090;
+const PORT = process.env.PORT || 8080;
 const REALM = process.env.NODE_ENV || 'development';
 
 // Initialize our Express class
@@ -82,9 +82,3 @@ app.listen(PORT, function() {
 
 	console.log('[REALM ' + REALM + '] UFSIT Portal now accepting requests at ' + url);
 });
-
-const server = app.listen(3000, function(){
-    console.log("Listening on port 3000."); //need to export server from app.js
-}); 
-
-module.exports = server;

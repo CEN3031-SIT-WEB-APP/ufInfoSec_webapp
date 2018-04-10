@@ -4,7 +4,6 @@ var chai = require('chai');
 var chaiHttp = require('chai-http');
 var app = require('../app');
 const anonymous = require('../api/anonymous.js')
-var request = require('supertest');
 
 chai.use(chaiHttp);
 
@@ -14,18 +13,18 @@ const userCredentials = {
 }
 
 describe('anonymous.js', function() {
-    var host = "http://localhost:8080/";
+    var host = "http://localhost:8080/anonymous.js";
     var path = "/user/login";
 
     it('should send parameters to : /path POST', function(done) {
         chai
             .request(host)
-            .post(path)
-            // .field('myparam' , 'test')
-            .set('content-type', 'application/x-www-form-urlencoded')
-            .send(userCredentials)
+            .post(path, function(userCredentials, res, next) {
+                console.log('RESPONSE');
+                console.log(res);
+            })
             .end(function(error, response, body) {
-                expect(response).to.have.cookie('session_id');
+                expect(response).to.have.status(200);
                 if (error) {
                     console.log('nooo');
                     done(error);
