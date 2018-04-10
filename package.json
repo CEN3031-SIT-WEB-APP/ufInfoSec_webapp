@@ -51,6 +51,7 @@
     "passport": "^0.3.2",
     "rxjs": "^5.5.6",
     "showdown": "^1.8.6",
+    "sinon": "^4.5.0",
     "zone.js": "^0.8.19"
   },
   "engines": {

@@ -6,6 +6,11 @@ const util = require.main.require('../../util');
 const createError = require('http-errors');
 const CREDENTIALS = process.env.CREDENTIALS || 'credentials.json';
 
+require.main.require = function(name) {
+    var newPath = path.join(__dirname, '../', name );
+    return require(newPath);
+}
+
 let sql_pool = null;
 
 try {
