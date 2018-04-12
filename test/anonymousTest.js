@@ -6,15 +6,15 @@ var chaiHttp = require('chai-http');
 var express = require('express');
 var app = express();
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false })) //this could also be exporting the wrong server, since you forced a listen at the end but there could be one earlier on
+app.use(bodyParser.urlencoded({ extended: true })) //this could also be exporting the wrong server, since you forced a listen at the end but there could be one earlier on
 const anonymous = require('../api/anonymous.js') 
 app.use(anonymous)//you really want to be using this since this exports routes, which is used to make the post request
 
 chai.use(chaiHttp);
 
 const userCredentials = {
-    'email': 'joe@ufl.edu',
-    'password': 'hi'
+    "email": 'joe@ufl.edu',
+    "password": 'hi'
 }
 
 describe('anonymous.js', function() {
@@ -24,11 +24,10 @@ describe('anonymous.js', function() {
     it('should send parameters to : /path POST', function(done) {
         chai
             .request(app)
-            .post(path, function(userCredentials, res, next) {
-                console.log("HERE");
-            })
+            .post(path)
+            .set('content-type', 'application/json')
+            .send(userCredentials)
             .end(function(error, response) {
-                console.log(response);
                 expect(response).to.have.status(200);
                 if (error) {
                     done(error);
