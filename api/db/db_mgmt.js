@@ -259,6 +259,66 @@ let db_mgmt_module = function () {
             [email, after]);
     }
 
+
+    /* search meeting table for a date to see if a meeting is occuring */
+    async function search_for_meeting(date) {
+        const meeting = await queryAsync('SELECT * FROM `meeting` WHERE `day_of_week` = ?',
+        [date.getDay()]);
+        
+        if(meeting.length === 0){ //no meeting today
+            return;
+        }
+
+        console.log(meeting);
+        if(date.parse() >= meeting[0].start_time.parse() //start time passed
+        && date.parse() <= meeting[0].end_time.parse()) //end time not passed
+        {
+            return meeting;
+        }
+        return;
+    }
+
+    /* Determine if a user can signin to a meeting but checking signin table and meeting table */
+    async function search_meeting_signin(account_id, meeting_id) {
+        const signin = await queryAsync('SELECT * FROM `meeting_signin` WHERE `account_id` = ? AND `meeting_id` = ?',
+        [account_id, meeting_id]);
+        if(signin.length === 0){ //not in the table for this meeting
+            return 1;
+        }
+        //in the table for this meeting, but it could be a prior meeting
+        //was this meeting reoccuring?
+        const meeting = await queryAsync('SELECT * FROM `meeting` WHERE `meeting_id` = ?',
+        [meeting_id]);
+        if(meeting.length === 0){
+            return -1; //error
+        }
+        if(!meeting[0].reocurring){
+            //meeting is not reocurring and they are in the table for this meeting, so this is a second loggin attempt
+            return 0;
+        }
+
+        //meeting is reoccuring, check the time that they signed in last
+        var date = new Date; 
+        if(signin[0].time.getDate() === date.getDate() && 
+        signin[0].time.getMonth() === date.getMonth() &&
+        signin[0].time.getYear() === date.getYear()){
+            //user is already logged in for this meeting, seccond login attempt
+            return 0;
+        }
+
+        return 1; //user is not logged in this meeting
+    }
+
+    /* Add a user to the meeting signin table */
+    async function add_meeting_signin(meeting_id, account_id) {
+        const values = {
+            account_id: account_id,
+            meeting_id: meeting_id,
+            time: new Date(),
+            };
+        return await queryAsync('INSERT INTO `meeting_signin` SET ?', values);
+    }
+
     /* Get a list of the user's writeup submissions */
     async function get_user_writeup_submissions(account_id) {
         return await queryAsync('SELECT `id`,`name` FROM `writeup_submissions` WHERE `account_id` = ?',

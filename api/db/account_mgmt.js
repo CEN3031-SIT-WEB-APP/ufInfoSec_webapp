@@ -173,15 +173,23 @@ let account_mgmt_module = (function() {
 
     /* Meetings Cond Inc */
     async function meetingCondInc(account_id) {
-		var meetingDay = 1; //Monday
-		var meetingTime = 12+6; //6pm
+
 		var date = new Date;
-		var currHour = date.getHours();
-		var currDay = date.getDay();
-		if(meetingDay != currDay || meetingTime != currHour){
-			return;
-		}
-		meetingInc(account_id);
+		//meeting happening now?
+		const meeting = await db_mgmt.search_for_meeting(date);
+		if(meeting.length === 0) {}//check if meeting exist
+
+		//already signed in?
+		const signin = await db_mgmt.search_meeting_signin(account_id, meeting_id);
+		if(signin === 0) {} //check if signed in
+
+		//need to signin
+		const stat = await db_mgmt.add_meeting_signin(meeting, account_id);
+		if(stat.length === 0) {} //error adding to list
+		meetingInc(account_id); //increment accounts total meetings
+
+//		var currHour = date.getHours();
+//		var currDay = date.getDay();
 		return;
     }
     

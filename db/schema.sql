@@ -21,6 +21,22 @@ CREATE TABLE `account` (
 	PRIMARY KEY (`id`)
 );
 
+CREATE TABLE `meeting` (
+	`meeting_id` INT NOT NULL AUTO_INCREMENT,
+	`day_of_week` INT NOT NULL,	
+	`start_time` TIME NOT NULL,
+	`end_time` TIME NOT NULL,
+	`created_by` INT NOT NULL,
+	`reoccuring` BOOLEAN NOT NULL,
+	PRIMARY KEY (`meeting_id`)
+);
+
+CREATE TABLE `meeting_signin` (
+	`meeting_id` INT NOT NULL,
+	`accout_id` INT NOT NULL ,
+	`time` DATETIME NOT NULL
+);
+
 CREATE TABLE `event_signin` (
 	`id` INT NOT NULL AUTO_INCREMENT,
 	`event_id` INT NOT NULL,
