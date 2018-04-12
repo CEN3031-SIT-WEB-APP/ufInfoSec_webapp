@@ -41,7 +41,8 @@ routes.post('/user/login', async (req, res, next) => {
 		'password': req.body.password,
 	};
 
-	console.log('here');
+	console.log(req.headers);
+	console.log(req.body);
 
 	try {
 		const account_id = await account_mgmt.authenticate(login_data);
