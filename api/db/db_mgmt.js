@@ -2,16 +2,10 @@
 
 const fs = require('fs');  // For filesystem I/O
 const mysql = require('mysql');  // For mySQL interaction
-const util = require.main.require('../../util');
+const util = require('../../util');
 const createError = require('http-errors');
 const CREDENTIALS = process.env.CREDENTIALS || 'credentials.json';
 var path = require('path');
-
-
-require.main.require = function(name) {
-    var newPath = path.join(__dirname, '../', name );
-    return require(newPath);
-}
 
 let sql_pool = null;
 
