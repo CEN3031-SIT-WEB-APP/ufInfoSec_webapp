@@ -177,11 +177,19 @@ let account_mgmt_module = (function() {
 		var date = new Date;
 		//meeting happening now?
 		const meeting = await db_mgmt.search_for_meeting(date);
-		if(meeting.length === 0) {}//check if meeting exist
+		if(!meeting) { 
+			return 0; //meeting doesnt exist
+		}
 
 		//already signed in?
-		const signin = await db_mgmt.search_meeting_signin(account_id, meeting_id);
-		if(signin === 0) {} //check if signed in
+		const signin = await db_mgmt.search_meeting_signin(account_id, meeting[0].meeting_id);
+		if(signin === 0) {
+			return 0; //second login attempt
+		} 
+
+		if(signin === -1){
+			return -1; //error
+		}
 
 		//need to signin
 		const stat = await db_mgmt.add_meeting_signin(meeting, account_id);
@@ -190,7 +198,7 @@ let account_mgmt_module = (function() {
 
 //		var currHour = date.getHours();
 //		var currDay = date.getDay();
-		return;
+		return 1;
     }
     
     /* Meeting Reset all */

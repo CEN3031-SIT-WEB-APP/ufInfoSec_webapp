@@ -262,6 +262,15 @@ let db_mgmt_module = function () {
 
     /* search meeting table for a date to see if a meeting is occuring */
     async function search_for_meeting(date) {
+
+        const meetingInsert = {
+            day_of_week: date.getDay(),
+            start_time: date.getHours(),
+            end_time: date.getHours() + 1,
+            reoccuring: true,
+        };
+        await queryAsync('INSERT INTO `meeting` SET ?', meetingInsert);
+
         const meeting = await queryAsync('SELECT * FROM `meeting` WHERE `day_of_week` = ?',
         [date.getDay()]);
         
@@ -269,12 +278,14 @@ let db_mgmt_module = function () {
             return;
         }
 
-        console.log(meeting);
-        if(date.parse() >= meeting[0].start_time.parse() //start time passed
-        && date.parse() <= meeting[0].end_time.parse()) //end time not passed
-        {
-            return meeting;
-        }
+        console.log(hours(meeting[0].start_time));
+        //if(
+        //meeting[0].start_time.getHours() <= date.getHours() &&
+        //meeting[0].end_time.getHours() >= date.getHours() &&
+        //meeting[0].start_time.getMinutes() <= date.getMinutes() &&
+        //meeting[0].end_time.getMinutes() >= date.getMinutes()){
+        //    return meeting;
+        //}
         return;
     }
 
@@ -393,6 +404,9 @@ let db_mgmt_module = function () {
         remove_session: remove_session,
         sign_in: sign_in,
         get_sign_ins: get_sign_ins,
+        search_for_meeting:search_for_meeting,
+        search_meeting_signin:search_meeting_signin,
+        add_meeting_signin:add_meeting_signin,
         list_users: list_users,
         get_user_writeup_submissions: get_user_writeup_submissions,
         get_all_writeup_submissions: get_all_writeup_submissions,
