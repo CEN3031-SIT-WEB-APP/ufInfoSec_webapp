@@ -15,11 +15,16 @@ let admin_mgmt_module = function () {
         return await db_mgmt.delete_tile(id);
     };
 
+	async function insertMeeting(values){
+		return await db_mgmt.insertMeeting(values);
+	}
+
     // Revealing Module: Return public interface
     return ({
         list_users: list_users,
         add_tile: add_tile,
-        delete_tile: delete_tile
+        delete_tile: delete_tile,
+        insertMeeting: insertMeeting
     });
 
 };

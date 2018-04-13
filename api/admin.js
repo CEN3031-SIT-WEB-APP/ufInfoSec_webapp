@@ -37,4 +37,17 @@ routes.post('/admin/delete_tile', async (req, res, next) => {
     }
 });
 
+/*
+routes.post('/admin/meeting', async (req, res, next) => {
+    if (util.account_has_admin(req.account)) {
+        try {
+            await admin_mgmt.insertMeeting(req.body);
+            res.status(200).send('Success');
+        } catch (error) { return next(error) }
+    } else {
+        res.status(403).send('Access denied');
+    }
+});
+*/
+
 module.exports = routes;

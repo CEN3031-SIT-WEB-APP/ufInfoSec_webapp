@@ -265,28 +265,50 @@ let db_mgmt_module = function () {
 
         const meetingInsert = {
             day_of_week: date.getDay(),
-            start_time: date.getHours(),
-            end_time: date.getHours() + 1,
+            start_time: date.getHours().toString().concat(":00:00"),
+            end_time: (date.getHours() + 1).toString().concat(":00:00"),
             reoccuring: true,
         };
-        await queryAsync('INSERT INTO `meeting` SET ?', meetingInsert);
+        //await queryAsync('INSERT INTO `meeting` SET ?', meetingInsert);
 
         const meeting = await queryAsync('SELECT * FROM `meeting` WHERE `day_of_week` = ?',
         [date.getDay()]);
         
         if(meeting.length === 0){ //no meeting today
-            return;
+            return 0;
         }
 
-        console.log(hours(meeting[0].start_time));
-        //if(
-        //meeting[0].start_time.getHours() <= date.getHours() &&
-        //meeting[0].end_time.getHours() >= date.getHours() &&
-        //meeting[0].start_time.getMinutes() <= date.getMinutes() &&
-        //meeting[0].end_time.getMinutes() >= date.getMinutes()){
-        //    return meeting;
-        //}
-        return;
+        var i;
+        for(i=0; i<meeting.length; i++){
+            var start_hour = Number(meeting[i].start_time.substr(0,2));
+            var end_hour = Number(meeting[i].end_time.substr(0,2));
+            var start_min = Number(meeting[i].start_time.substr(3,2));
+            var end_min = Number(meeting[i].end_time.substr(3,2));
+            if( //within hours
+            start_hour <= date.getHours() &&
+            end_hour >= date.getHours()
+            ){
+                console.log("sup");
+                if( //if first hour, but not yet minutes, 
+                (start_hour === date.getHours() &&
+                start_min > date.getMinutes())
+                ||
+                //if last hour, and minutes already passed
+                (end_hour === date.getHours() &&
+                end_min < date.getMinutes())
+                ){
+                    console.log(start_hour === date.getHours());
+                    console.log(start_min > date.getMinutes());
+                    console.log(end_hour === date.getHours());
+                    console.log(end_min < date.getMinutes());
+                    console.log("yo");
+                    return 0;
+                }
+                console.log("hi");
+                return meeting[i];
+            }            
+        }
+        return 0;
     }
 
     /* Determine if a user can signin to a meeting but checking signin table and meeting table */
@@ -393,6 +415,10 @@ let db_mgmt_module = function () {
         return await queryAsync('SELECT id FROM `account`');
     }
 
+    async function insertMeeting(values){
+        return await queryAsync('INSERT INTO `meeting` SET ?', values);
+    }
+
     // Revealing module
     return ({
         create_account: create_account,
@@ -404,9 +430,9 @@ let db_mgmt_module = function () {
         remove_session: remove_session,
         sign_in: sign_in,
         get_sign_ins: get_sign_ins,
-        search_for_meeting:search_for_meeting,
-        search_meeting_signin:search_meeting_signin,
-        add_meeting_signin:add_meeting_signin,
+        search_for_meeting: search_for_meeting,
+        search_meeting_signin: search_meeting_signin,
+        add_meeting_signin: add_meeting_signin,
         list_users: list_users,
         get_user_writeup_submissions: get_user_writeup_submissions,
         get_all_writeup_submissions: get_all_writeup_submissions,
@@ -420,6 +446,7 @@ let db_mgmt_module = function () {
         custom_tiles: custom_tiles,
         tile_click: tile_click,
         get_session_table: get_session_table,
+        insertMeeting: insertMeeting,
     });
 };
 

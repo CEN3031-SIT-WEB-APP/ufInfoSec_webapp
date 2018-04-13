@@ -32,8 +32,8 @@ CREATE TABLE `meeting` (
 );
 
 CREATE TABLE `meeting_signin` (
-	`meeting_id` INT NOT NULL,
-	`accout_id` INT NOT NULL ,
+	`meeting_id` INT NOT NULL, 
+	`account_id` INT NOT NULL ,
 	`time` DATETIME NOT NULL
 );
 

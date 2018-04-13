@@ -150,7 +150,7 @@ let account_mgmt_module = (function() {
 		return data.id;
 	}
 	*/
-	
+
     /* Meetings Set */
     async function meetingSet(account_id, val) {
         const data = await db_mgmt.retrieve_by_id(account_id); // get data from account
@@ -166,7 +166,8 @@ let account_mgmt_module = (function() {
 
     /* Meetings Inc */
     async function meetingInc(account_id) {
-        const data = await db_mgmt.retrieve_by_id(account_id);
+		
+		const data = await db_mgmt.retrieve_by_id(account_id);
 		data.total_meetings++;
 		return await db_mgmt.update_account(account_id, data);
     }
@@ -175,25 +176,35 @@ let account_mgmt_module = (function() {
     async function meetingCondInc(account_id) {
 
 		var date = new Date;
+		console.log(date.getHours());
 		//meeting happening now?
 		const meeting = await db_mgmt.search_for_meeting(date);
-		if(!meeting) { 
+		if(meeting === 0) { 
+			console.log("meeting doesnt exist");
 			return 0; //meeting doesnt exist
 		}
 
 		//already signed in?
-		const signin = await db_mgmt.search_meeting_signin(account_id, meeting[0].meeting_id);
+		console.log("halp");
+		const signin = await db_mgmt.search_meeting_signin(account_id, meeting.meeting_id);
 		if(signin === 0) {
+			console.log("second login attempt");
 			return 0; //second login attempt
 		} 
 
 		if(signin === -1){
+			console.log("error in search_meeting_signin");
 			return -1; //error
 		}
 
 		//need to signin
-		const stat = await db_mgmt.add_meeting_signin(meeting, account_id);
-		if(stat.length === 0) {} //error adding to list
+		console.log("here");
+		const stat = await db_mgmt.add_meeting_signin(meeting.meeting_id, account_id);
+		if(stat.length === 0) {
+			console.log("error adding to list");
+			return -1;
+		} 
+		console.log("added account, inc meetings");
 		meetingInc(account_id); //increment accounts total meetings
 
 //		var currHour = date.getHours();
@@ -228,6 +239,12 @@ let account_mgmt_module = (function() {
 			}
 		}
     }
+
+	async function insertMeeting(values){
+		const stat = await db_mgmt.insertMeeting(values);
+		return;
+	}
+
 
 
 	// Revealing Module: Return public interface
