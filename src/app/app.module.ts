@@ -37,7 +37,7 @@ import { AdminGuardService } from './admin-guard.service';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CalendarModule } from 'angular-calendar';
-import { googleCalendar } from '../../googleCalConnect.ts';
+import { googleCalendar } from '../../app.js';
 
 @NgModule({
   declarations: [

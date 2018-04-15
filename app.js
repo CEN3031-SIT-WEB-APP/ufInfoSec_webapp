@@ -82,3 +82,28 @@ app.listen(PORT, function() {
 
 	console.log('[REALM ' + REALM + '] UFSIT Portal now accepting requests at ' + url);
 });
+
+let google = require('googleapis');
+let auth = require('google-auth-library');
+
+let privatekey = require("./googleCalPrivateKey.json");
+
+// configure a JWT auth client
+let jwtClient = new google.google.auth.JWT(
+       privatekey.client_email,
+       null,
+       privatekey.private_key,
+       ['https://www.googleapis.com/auth/calendar']);
+//authenticate request
+jwtClient.authorize(function (err, tokens) {
+ if (err) {
+   console.log(err);
+   return;
+ } else {
+   console.log("Successfully connected!");
+ }
+});
+
+let googleCalendar = google.google.calendar('v3');
+
+module.exports = googleCalendar;
