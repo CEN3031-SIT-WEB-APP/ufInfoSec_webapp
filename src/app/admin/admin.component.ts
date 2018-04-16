@@ -63,7 +63,12 @@ export class AdminComponent implements OnInit {
             reoccuring: true,
         };
         //await queryAsync('INSERT INTO `meeting` SET ?', meetingInsert);
-        this.sessionService.createMeeting(data);
+        //this.sessionService.createMeeting(data);
+        this.sessionService.createMeeting(data).subscribe(
+            success => { console.log(success); },
+            error => {console.log(error); }
+          );
+          
 
     }
 
