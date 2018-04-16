@@ -22,8 +22,8 @@ export class AdminComponent implements OnInit {
 
     public createMeetingForm: FormGroup;
     createMeetingNotifications = { emptyField: false }
-    private weekDays = ['0', '1', '2', '3', '4', '5', '6'];
-    private reoccuringBool = ['0', '1'];
+    private weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    private reoccuringBool = ['Yes', 'No'];
 
     private title = 'Admin Page';
 
@@ -210,6 +210,44 @@ export class AdminComponent implements OnInit {
           this.createMeetingNotifications.emptyField = true;
           return;
         }
+
+        //alter values here so they can have more user friendly default values
+        if (formValue.value.createMeetingInfo[0].reoccuring === 'Yes') {
+            formValue.value.createMeetingInfo[0].reoccuring = '1';
+        }
+        else {
+            formValue.value.createMeetingInfo[0].reoccuring = '0';
+        }
+
+        if (formValue.value.createMeetingInfo[0].weekDay === 'Sunday') {
+            formValue.value.createMeetingInfo[0].weekDay = '0';
+        }
+        if (formValue.value.createMeetingInfo[0].weekDay === 'Monday') {
+            formValue.value.createMeetingInfo[0].weekDay = '1';
+        }
+        if (formValue.value.createMeetingInfo[0].weekDay === 'Tuesday') {
+            formValue.value.createMeetingInfo[0].weekDay = '2';
+        }
+        if (formValue.value.createMeetingInfo[0].weekDay === 'Wednesday') {
+            formValue.value.createMeetingInfo[0].weekDay = '3';
+        }
+        if (formValue.value.createMeetingInfo[0].weekDay === 'Thursday') {
+            formValue.value.createMeetingInfo[0].weekDay = '4';
+        }
+        if (formValue.value.createMeetingInfo[0].weekDay === 'Friday') {
+            formValue.value.createMeetingInfo[0].weekDay = '5';
+        }
+        if (formValue.value.createMeetingInfo[0].weekDay === 'Saturday') {
+            formValue.value.createMeetingInfo[0].weekDay = '6';
+        }
+
+        console.log(formValue.value.createMeetingInfo[0].weekDay);
+
+
+        formValue.value.createMeetingInfo[0].startTime = (formValue.value.createMeetingInfo[0].startTime).concat(':00');
+        formValue.value.createMeetingInfo[0].endTime = (formValue.value.createMeetingInfo[0].endTime).concat(':00');
+
+
         let data = {day_of_week: formValue.value.createMeetingInfo[0].weekDay, start_time: formValue.value.createMeetingInfo[0].startTime , end_time: formValue.value.createMeetingInfo[0].endTime, reoccuring: formValue.value.createMeetingInfo[0].reoccuring};
         this.sessionService.createMeeting(data).subscribe(
             res => {

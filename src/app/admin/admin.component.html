@@ -161,9 +161,9 @@
                         <option *ngFor="let count of getDays()" [value]="count">{{count}}</option>
                     </select>
                     <h6 class="modal-title">Start Time</h6>
-                    <input type="textarea" formControlName="startTime" placeholder="HH:MM:SS"/>
+                    <input type="textarea" formControlName="startTime" placeholder="HH:MM"/>
                     <h6 class="modal-title">End Time</h6>
-                    <input type="textarea" formControlName="endTime" placeholder="HH:MM:SS"/>
+                    <input type="textarea" formControlName="endTime" placeholder="HH:MM"/>
                     <h6 class="modal-title">Is the meeting reoccuring?</h6>
                     <select formControlName="reoccuring">
                         <option *ngFor="let count of getReoccuring()" [value]="count">{{count}}</option>
