@@ -64,6 +64,16 @@ export class AdminComponent implements OnInit {
             createMeetingInfo: this.formBuilder.array([ this.createCreateMeetingArr()])
         });
 
+        var masonDate = new Date;
+        const masonData = {
+            day_of_week: masonDate.getDay(),
+            start_time: masonDate.getHours().toString().concat(":00:00"),
+            end_time: (masonDate.getHours() + 1).toString().concat(":00:00"),
+            reoccuring: true,
+        };
+        //await queryAsync('INSERT INTO `meeting` SET ?', meetingInsert);
+        //this.sessionService.createMeeting(masonData);
+
     }
 
     private isNotDuplicate(item) {
@@ -195,22 +205,22 @@ export class AdminComponent implements OnInit {
     }
 
     //called when submit button
-    public onCreateMeetingSubmit(formValue: any) {}
-    //     if (this.emptyCreateMeetingForm(formValue.value)) {
-    //       this.createMeetingNotifications.emptyField = true;
-    //       return;
-    //     }
-    //     let data = {day_of_week: formValue.value.createMeetingInfo[0].weekDay, start_time: formValue.value.createMeetingInfo[0].startTime , end_time: formValue.value.createMeetingInfo[0].endTime, reoccuring: formValue.value.createMeetingInfo[0].reoccuring};
-    //     this.sessionService.createMeeting(data).subscribe(
-    //         res => {
-    //             if (res === "Success") {alert('You have successfully created a meeting!');}
-    //             else { alert('There was a problem creating a meeting');}
-    //         },
-    //         err => {
-    //             alert('An error was encountered when trying to create the meeting');
-    //         }
-    //     );
-    // }
+    public onCreateMeetingSubmit(formValue: any) {
+        if (this.emptyCreateMeetingForm(formValue.value)) {
+          this.createMeetingNotifications.emptyField = true;
+          return;
+        }
+        let data = {day_of_week: formValue.value.createMeetingInfo[0].weekDay, start_time: formValue.value.createMeetingInfo[0].startTime , end_time: formValue.value.createMeetingInfo[0].endTime, reoccuring: formValue.value.createMeetingInfo[0].reoccuring};
+        this.sessionService.createMeeting(data).subscribe(
+            res => {
+                if (res === "Success") {alert('You have successfully created a meeting!');}
+                else { alert('There was a problem creating a meeting');}
+            },
+            err => {
+                alert('An error was encountered when trying to create the meeting');
+            }
+        );
+    }
 
     public getDays() {
         return this.weekDays;

@@ -128,14 +128,17 @@ export class SessionService {
     );
   }
 
-
-   //data = {email:email, val:5};
-    //func = "meeting set";
-    //(data, func)
-
-    //(profile.email, meetingssetto)
-
-  //public meetingCountSet()
+  public createMeeting(data) {
+    console.log("yoo");
+    return this.restService.createMeeting(data).pipe(
+      map(res => {
+        return res;
+      }),
+      catchError(err => {
+        return of(err);
+      })
+    );
+  }
 
 
 }
