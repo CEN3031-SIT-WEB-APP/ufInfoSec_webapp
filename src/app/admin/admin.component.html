@@ -87,6 +87,11 @@
                 <button class="btn btn-lg btn-outline-success alterSignIn" (click)="open(alterSignInModal)">Change meeting sign-in count</button>
             </div>
 
+            <div class="row">
+                <h5 class="mb-3">Create a new meeting</h5>
+                <button class="btn btn-lg btn-outline-success alterSignIn" (click)="open(createMeetingModal)">Create meeting</button>
+            </div>
+
         </div>
 
     </div>
@@ -128,3 +133,46 @@
     </div>
 </ng-template>
 
+
+<!-- hours, minutes, day of week, reoccuring-->
+<!-- Create Meeting Modal Popup -->
+<ng-template #createMeetingModal let-c="close" let-d="dismiss">
+  <!--Empty Field Notification -->
+  <div *ngIf="createMeetingNotifications.emptyField" class="alert alert-danger alert-dismissible" id="emailConflictAlert" role="alert">
+    <button type="button" class="close" (click)="createMeetingNotifications.emptyField = false">
+    <span aria-hidden="true">&times;</span></button>
+    <span class="notification_panel"><strong>Error</strong> Cannot have empty field</span>
+  </div>
+
+  <!-- Header for modal -->
+    <div class="modal-header">
+        <h3 class="modal-title">Create a Meeting</h3>
+        <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+    <div class="modal-body">
+        <form [formGroup]="createMeetingForm" (ngSubmit)="onCreateMeetingSubmit(createMeetingForm)">
+            <div formArrayName="createMeetingInfo" *ngFor="let x of createMeetingForm.controls.createMeetingInfo.controls; let i = index;">
+                <div [formGroupName]="i">
+                    <h6 class="modal-title">Weekday</h6>
+                    <select formControlName="weekDay">
+                        <option *ngFor="let count of getDays()" [value]="count">{{count}}</option>
+                    </select>
+                    <h6 class="modal-title">Start Time</h6>
+                    <input type="textarea" formControlName="startTime" placeholder="HH:MM:SS"/>
+                    <h6 class="modal-title">End Time</h6>
+                    <input type="textarea" formControlName="endTime" placeholder="HH:MM:SS"/>
+                    <h6 class="modal-title">Is the meeting reoccuring?</h6>
+                    <select formControlName="reoccuring">
+                        <option *ngFor="let count of getReoccuring()" [value]="count">{{count}}</option>
+                    </select>
+                    <br><br>
+                </div>
+            </div>
+
+            <button type="submit">Save</button>
+        </form>
+    </div>
+</ng-template>
