@@ -416,6 +416,7 @@ let db_mgmt_module = function () {
     }
 
     async function insertMeeting(values){
+        console.log("IM INSERTING");
         return await queryAsync('INSERT INTO `meeting` SET ?', values);
     }
 

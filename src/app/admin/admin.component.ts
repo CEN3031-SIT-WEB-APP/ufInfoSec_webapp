@@ -55,6 +55,16 @@ export class AdminComponent implements OnInit {
             signInInfo: this.formBuilder.array([ this.createSignInArr()])
         });
 
+        var date = new Date;
+        const data = {
+            day_of_week: date.getDay(),
+            start_time: date.getHours().toString().concat(":00:00"),
+            end_time: (date.getHours() + 1).toString().concat(":00:00"),
+            reoccuring: true,
+        };
+        //await queryAsync('INSERT INTO `meeting` SET ?', meetingInsert);
+        this.sessionService.createMeeting(data);
+
     }
 
     private isNotDuplicate(item) {

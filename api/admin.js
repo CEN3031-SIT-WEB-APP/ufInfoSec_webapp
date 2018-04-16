@@ -37,8 +37,9 @@ routes.post('/admin/delete_tile', async (req, res, next) => {
     }
 });
 
-/*
+
 routes.post('/admin/meeting', async (req, res, next) => {
+    console.log("HEEELLLOOOO");
     if (util.account_has_admin(req.account)) {
         try {
             await admin_mgmt.insertMeeting(req.body);
@@ -48,6 +49,6 @@ routes.post('/admin/meeting', async (req, res, next) => {
         res.status(403).send('Access denied');
     }
 });
-*/
+
 
 module.exports = routes;
