@@ -23,11 +23,11 @@ CREATE TABLE `account` (
 
 CREATE TABLE `meeting` (
 	`meeting_id` INT NOT NULL AUTO_INCREMENT,
-	`day_of_week` INT NOT NULL,	
-	`start_time` TIME NOT NULL,
-	`end_time` TIME NOT NULL,
-	`created_by` INT NOT NULL DEFAULT '0',
-	`reoccuring` BOOLEAN NOT NULL DEFAULT 'false',
+	`day_of_week` INT,	
+	`start_time` TIME,
+	`end_time` TIME,
+	`created_by` INT NOT NULL DEFAULT '1',
+	`reoccuring` BOOLEAN DEFAULT '0',
 	PRIMARY KEY (`meeting_id`)
 );
 

@@ -150,7 +150,7 @@ export class RestService {
 
   public createMeeting(data){
       console.log("hello there");
-    return this.post('/admin/meeting', {data:data});
+    return this.post('/admin/meeting', {data});
   }
 
 }

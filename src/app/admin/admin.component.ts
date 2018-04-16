@@ -20,6 +20,11 @@ export class AdminComponent implements OnInit {
     signInNotifications = { emptyField: false }
     private nums = ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20'];
 
+    public createMeetingForm: FormGroup;
+    createMeetingNotifications = { emptyField: false }
+    private weekDays = ['0', '1', '2', '3', '4', '5', '6'];
+    private reoccuringBool = ['0', '1'];
+
     private title = 'Admin Page';
 
     constructor(
@@ -55,20 +60,19 @@ export class AdminComponent implements OnInit {
             signInInfo: this.formBuilder.array([ this.createSignInArr()])
         });
 
-        var date = new Date;
-        const data = {
-            day_of_week: date.getDay(),
-            start_time: date.getHours().toString().concat(":00:00"),
-            end_time: (date.getHours() + 1).toString().concat(":00:00"),
+        this.createMeetingForm = this.formBuilder.group({
+            createMeetingInfo: this.formBuilder.array([ this.createCreateMeetingArr()])
+        });
+
+        var masonDate = new Date;
+        const masonData = {
+            day_of_week: masonDate.getDay(),
+            start_time: masonDate.getHours().toString().concat(":00:00"),
+            end_time: (masonDate.getHours() + 1).toString().concat(":00:00"),
             reoccuring: true,
         };
         //await queryAsync('INSERT INTO `meeting` SET ?', meetingInsert);
         //this.sessionService.createMeeting(data);
-        this.sessionService.createMeeting(data).subscribe(
-            success => { console.log(success); },
-            error => {console.log(error); }
-          );
-          
 
     }
 
@@ -114,7 +118,7 @@ export class AdminComponent implements OnInit {
         this.customTiles.splice(index, 1); // delete frontend element
     }
 
-// ------- modal stuff --------
+// ------- sign in modal stuff --------
     
     //opens the modal
     public open(content: any) {
@@ -179,5 +183,51 @@ export class AdminComponent implements OnInit {
     // get page title
     public getTitle() {
         return this.title;
+    }
+
+// ------- create meeting modal stuff --------
+
+    createCreateMeetingArr(): FormGroup {
+        return this.formBuilder.group({
+            weekDay: ['',[Validators.required]],
+            startTime: ['', [Validators.required]],
+            endTime : ['', [Validators.required]],
+            reoccuring : ['', Validators.required]
+        });
+    }
+
+    private emptyCreateMeetingForm(form: any) {
+        for (let x of form.createMeetingInfo) {
+            if (x.weekDay === '' || x.startTime === '' || x.endTime === '' || x.reoccuring === '') {
+                return true;
+            }
+        }
+    }
+
+    
+    //called when submit button
+    public onCreateMeetingSubmit(formValue: any) {
+        if (this.emptyCreateMeetingForm(formValue.value)) {
+          this.createMeetingNotifications.emptyField = true;
+          return;
+        }
+        let data = {day_of_week: Number(formValue.value.createMeetingInfo[0].weekDay), start_time: formValue.value.createMeetingInfo[0].startTime , end_time: formValue.value.createMeetingInfo[0].endTime, reoccuring: Number(formValue.value.createMeetingInfo[0].reoccuring)};
+        this.sessionService.createMeeting(data).subscribe(
+            res => {
+                if (res === "Success") {alert('You have successfully created a meeting!');}
+                else { alert('There was a problem creating a meeting');}
+            },
+            err => {
+                alert('An error was encountered when trying to create the meeting');
+            }
+        );
+    }
+
+    public getDays() {
+        return this.weekDays;
+    }
+
+    public getReoccuring() {
+        return this.reoccuringBool;
     }
 }
