@@ -72,7 +72,7 @@ export class AdminComponent implements OnInit {
             reoccuring: true,
         };
         //await queryAsync('INSERT INTO `meeting` SET ?', meetingInsert);
-        //this.sessionService.createMeeting(masonData);
+        //this.sessionService.createMeeting(data);
 
     }
 
@@ -204,13 +204,13 @@ export class AdminComponent implements OnInit {
         }
     }
 
+    
     //called when submit button
     public onCreateMeetingSubmit(formValue: any) {
         if (this.emptyCreateMeetingForm(formValue.value)) {
           this.createMeetingNotifications.emptyField = true;
           return;
         }
-
         //alter values here so they can have more user friendly default values
         if (formValue.value.createMeetingInfo[0].reoccuring === 'Yes') {
             formValue.value.createMeetingInfo[0].reoccuring = '1';
@@ -247,8 +247,7 @@ export class AdminComponent implements OnInit {
         formValue.value.createMeetingInfo[0].startTime = (formValue.value.createMeetingInfo[0].startTime).concat(':00');
         formValue.value.createMeetingInfo[0].endTime = (formValue.value.createMeetingInfo[0].endTime).concat(':00');
 
-
-        let data = {day_of_week: formValue.value.createMeetingInfo[0].weekDay, start_time: formValue.value.createMeetingInfo[0].startTime , end_time: formValue.value.createMeetingInfo[0].endTime, reoccuring: formValue.value.createMeetingInfo[0].reoccuring};
+        let data = {day_of_week: Number(formValue.value.createMeetingInfo[0].weekDay), start_time: formValue.value.createMeetingInfo[0].startTime , end_time: formValue.value.createMeetingInfo[0].endTime, reoccuring: Number(formValue.value.createMeetingInfo[0].reoccuring)};
         this.sessionService.createMeeting(data).subscribe(
             res => {
                 if (res === "Success") {alert('You have successfully created a meeting!');}
