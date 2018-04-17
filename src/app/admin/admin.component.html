@@ -168,6 +168,10 @@
                     <select formControlName="reoccuring">
                         <option *ngFor="let count of getReoccuring()" [value]="count">{{count}}</option>
                     </select>
+                    <h6 class="modal-title">Create or remove meeting</h6>
+                    <select formControlName="create">
+                        <option *ngFor="let count of getReoccuring()" [value]="count">{{count}}</option>
+                    </select>
                     <br><br>
                 </div>
             </div>

@@ -18,13 +18,17 @@ let admin_mgmt_module = function () {
 	async function insertMeeting(values){
 		return await db_mgmt.insertMeeting(values);
 	}
-
+    
+    async function deleatMeeting(values){
+		return await db_mgmt.deleatMeeting(values);
+	}
     // Revealing Module: Return public interface
     return ({
         list_users: list_users,
         add_tile: add_tile,
         delete_tile: delete_tile,
-        insertMeeting: insertMeeting
+        insertMeeting: insertMeeting,
+        deleatMeeting: deleatMeeting
     });
 
 };

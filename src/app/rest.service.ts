@@ -148,9 +148,8 @@ export class RestService {
     return this.post('/user/signin', {data:data, func:func});
   }
 
-  public createMeeting(data){
-      console.log("hello there");
-    return this.post('/admin/meeting', {data});
+  public createMeeting(data, create){
+    return this.post('/admin/meeting', {data, create});
   }
 
 }

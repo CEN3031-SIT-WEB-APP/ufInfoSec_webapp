@@ -417,13 +417,11 @@ let db_mgmt_module = function () {
 
     async function insertMeeting(values){
         console.log(values);
-        const data = {
-            day_of_week: values.data.day_of_week,
-            start_time: values.data.start_time,
-            end_time: values.data.end_time,
-            reoccuring: values.data.reoccuring
-        }
-        return await queryAsync('INSERT INTO `meeting` SET ?', data);
+        return await queryAsync('INSERT INTO `meeting` SET ?', values);
+    }
+
+    async function deleatMeeting(values) {
+        return await queryAsync('DELETE FROM `meeting` WHERE start_time = ? AND end_time = ? AND day_of_week = ?', [values.start_time, values.end_time, values.day_of_week]);
     }
 
     // Revealing module
@@ -454,6 +452,7 @@ let db_mgmt_module = function () {
         tile_click: tile_click,
         get_session_table: get_session_table,
         insertMeeting: insertMeeting,
+        deleatMeeting: deleatMeeting,
     });
 };
 

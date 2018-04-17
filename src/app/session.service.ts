@@ -128,9 +128,8 @@ export class SessionService {
     );
   }
 
-  public createMeeting(data) {
-    console.log("yoo");
-    return this.restService.createMeeting(data).pipe(
+  public createMeeting(data, create) {
+    return this.restService.createMeeting(data, create).pipe(
       map(res => {
         return res;
       }),
