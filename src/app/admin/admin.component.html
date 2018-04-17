@@ -146,7 +146,7 @@
 
   <!-- Header for modal -->
     <div class="modal-header">
-        <h3 class="modal-title">Create a Meeting</h3>
+        <h3 class="modal-title">Create/Remove a Meeting</h3>
         <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
             <span aria-hidden="true">&times;</span>
         </button>
@@ -170,7 +170,7 @@
                     </select>
                     <h6 class="modal-title">Create or remove meeting</h6>
                     <select formControlName="create">
-                        <option *ngFor="let count of getReoccuring()" [value]="count">{{count}}</option>
+                        <option *ngFor="let count of getCreate()" [value]="count">{{count}}</option>
                     </select>
                     <br><br>
                 </div>

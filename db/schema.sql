@@ -26,7 +26,7 @@ CREATE TABLE `meeting` (
 	`day_of_week` INT,	
 	`start_time` TIME,
 	`end_time` TIME,
-	`created_by` INT NOT NULL DEFAULT '1',
+	`created_on` DATETIME NOT NULL,
 	`reoccuring` BOOLEAN DEFAULT '0',
 	PRIMARY KEY (`meeting_id`)
 );

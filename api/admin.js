@@ -38,14 +38,11 @@ routes.post('/admin/delete_tile', async (req, res, next) => {
 });
 
 routes.post('/admin/meeting', async (req, res, next) => {
-    console.log("HEEELLLOOOO");
     if (util.account_has_admin(req.account)) {
         try {
             if(Number(req.body.create) === 0){
-                console.log("DELEATING");
                 await admin_mgmt.deleatMeeting(req.body.data);
             }else{
-                console.log("INSERTING");
                 await admin_mgmt.insertMeeting(req.body.data);
             }
             res.status(200).send('Success');

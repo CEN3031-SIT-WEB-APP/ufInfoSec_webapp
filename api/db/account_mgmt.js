@@ -176,7 +176,6 @@ let account_mgmt_module = (function() {
     async function meetingCondInc(account_id) {
 
 		var date = new Date;
-		console.log(date.getHours());
 		//meeting happening now?
 		const meeting = await db_mgmt.search_for_meeting(date);
 		if(meeting === 0) { 
@@ -185,7 +184,6 @@ let account_mgmt_module = (function() {
 		}
 
 		//already signed in?
-		console.log("halp");
 		const signin = await db_mgmt.search_meeting_signin(account_id, meeting.meeting_id);
 		if(signin === 0) {
 			console.log("second login attempt");
@@ -198,7 +196,6 @@ let account_mgmt_module = (function() {
 		}
 
 		//need to signin
-		console.log("here");
 		const stat = await db_mgmt.add_meeting_signin(meeting.meeting_id, account_id);
 		if(stat.length === 0) {
 			console.log("error adding to list");
@@ -207,8 +204,6 @@ let account_mgmt_module = (function() {
 		console.log("added account, inc meetings");
 		meetingInc(account_id); //increment accounts total meetings
 
-//		var currHour = date.getHours();
-//		var currDay = date.getDay();
 		return 1;
     }
     
@@ -239,13 +234,6 @@ let account_mgmt_module = (function() {
 			}
 		}
     }
-
-	async function insertMeeting(values){
-		const stat = await db_mgmt.insertMeeting(values);
-		return;
-	}
-
-
 
 	// Revealing Module: Return public interface
 	return {
