@@ -263,14 +263,6 @@ let db_mgmt_module = function () {
     /* search meeting table for a date to see if a meeting is occuring */
     async function search_for_meeting(date) {
 
-        const meetingInsert = {
-            day_of_week: date.getDay(),
-            start_time: date.getHours().toString().concat(":00:00"),
-            end_time: (date.getHours() + 1).toString().concat(":00:00"),
-            reoccuring: true,
-        };
-        //await queryAsync('INSERT INTO `meeting` SET ?', meetingInsert);
-
         const meeting = await queryAsync('SELECT * FROM `meeting` WHERE `day_of_week` = ?',
         [date.getDay()]);
         
@@ -280,6 +272,23 @@ let db_mgmt_module = function () {
 
         var i;
         for(i=0; i<meeting.length; i++){
+            var fail = 0;
+            if(Number(meeting[i].reoccuring) === 0){
+                //Get 1 day in milliseconds
+                var one_day=1000*60*60*24;
+                // Convert both dates to milliseconds
+                var date1_ms = date.getTime();
+                var date2_ms = new Date(meeting[i].created_on);
+                date2_ms = date2_ms.getTime();
+                // Calculate the difference in milliseconds
+                var difference_ms = Math.round(date2_ms - date1_ms);
+                // Convert back to days and return
+                var diff_days = Math.abs(Math.round(difference_ms/one_day)) || 0; 
+                //if not reocurring
+                if(diff_days >= 7){
+                    fail = 1;
+                }
+            }
             var start_hour = Number(meeting[i].start_time.substr(0,2));
             var end_hour = Number(meeting[i].end_time.substr(0,2));
             var start_min = Number(meeting[i].start_time.substr(3,2));
@@ -288,26 +297,30 @@ let db_mgmt_module = function () {
             start_hour <= date.getHours() &&
             end_hour >= date.getHours()
             ){
-                console.log("sup");
-                if( //if first hour, but not yet minutes, 
-                (start_hour === date.getHours() &&
-                start_min > date.getMinutes())
-                ||
-                //if last hour, and minutes already passed
+                if( //if first hour, and not passed minutes, 
+                start_hour === date.getHours() &&
+                start_min > date.getMinutes()
+                ){
+                    //fail
+                    fail = 1;
+                }
+
+                if//if last hour, and passed minutes
                 (end_hour === date.getHours() &&
                 end_min < date.getMinutes())
-                ){
-                    console.log(start_hour === date.getHours());
-                    console.log(start_min > date.getMinutes());
-                    console.log(end_hour === date.getHours());
-                    console.log(end_min < date.getMinutes());
-                    console.log("yo");
-                    return 0;
+                {
+                    //fail
+                    fail = 1;
                 }
-                console.log("hi");
-                return meeting[i];
-            }            
-        }
+
+                //pass?
+                if(fail !== 1){
+                    return meeting[i];
+                }
+
+            } 
+        }    
+        console.log("yo");
         return 0;
     }
 
@@ -417,7 +430,6 @@ let db_mgmt_module = function () {
 
     async function insertMeeting(values){
         values.created_on = new Date();
-        console.log(values);
         return await queryAsync('INSERT INTO `meeting` SET ?', values);
     }
 

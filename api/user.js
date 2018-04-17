@@ -150,7 +150,7 @@ routes.post('/user/profile/:user_id', async function(req, res, next) {
 });
 
 routes.post('/user/signin', async function(req, res, next) {
-
+	try {
 	switch (req.body.func) {
 		case "meeting set":
 			//console.log(req.body.data.email);
@@ -167,14 +167,17 @@ routes.post('/user/signin', async function(req, res, next) {
 			await account_mgmt.meetingIncAll();
 			break;
 		case "meeting cond inc":
-			await account_mgmt.meetingCondInc(req.session.account_id);		
+			if(await account_mgmt.meetingCondInc(req.session.account_id) === 0){
+				res.status(304).send('Success');
+			}
 			break;
 		default:
 			console.log("meeting: that func doesnt exist");
 			break;
 	}
-	//console.log(await account_mgmt.meetingGet(req.session.account_id));
-	return res.status(200);
+	res.status(200).send('Success');
+} catch (error) { return next(error) }
+
 });
 
 module.exports = routes;

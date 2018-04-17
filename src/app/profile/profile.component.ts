@@ -35,7 +35,6 @@ export class ProfileComponent implements OnInit {
 
       // get the resolved data
       const routeProfile = this.route.snapshot.data.profile;
-      console.log(routeProfile);
       // as long as the resolved data isn't null, update the cached profile
       // information with the resolved data
       if (routeProfile != null) {
@@ -69,7 +68,7 @@ export class ProfileComponent implements OnInit {
     let func = "meeting cond inc";
     this.sessionService.meetingSignIn(data, func).subscribe(
       res => {
-        if (res === "Success") {alert('You have successfully signed in!');}
+        if (res.status === 200) {alert('You have successfully signed in!');}
         else { alert('There was a problem signing in');}
       },
       err => {
