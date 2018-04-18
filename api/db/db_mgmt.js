@@ -512,6 +512,7 @@ let db_mgmt_module = function () {
 
     async function delete_tile(id) {
         return await queryAsync('UPDATE `tiles` SET `deleted` = TRUE WHERE `id` = ?', id);
+    }
 
     /* search meeting table for a date to see if a meeting is occuring */
     async function search_for_meeting(date) {
@@ -743,6 +744,8 @@ let db_mgmt_module = function () {
     async function set_resume_questions(account_id, new_data) {
         return await queryAsync('UPDATE `account` SET `research`=?,`internship`=?,`major`=?,`grad_date`=?,`gpa`=? WHERE `id`=?',
                                 [new_data.research, new_data.internship, new_data.major, new_data.grad_date, new_data.gpa, account_id]);
+    }
+    
     async function get_session_table(){
         return await queryAsync('SELECT id FROM `account`');
     }

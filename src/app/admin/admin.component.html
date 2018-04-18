@@ -2,57 +2,6 @@
 
     <br/>
 
-    <div id="adminTitle" class="main_header">{{ this.getTitle() }}</div>
-    <div class="row m-1 center">
-        <div class="col m-0 p-0">
-            <h3>Custom Tiles</h3>
-            <table id="tile-list" class="table table-striped center">
-                <thead>
-                    <tr>
-                        <td>Name</td>
-                        <td>Description</td>
-                        <td>Link</td>
-                        <td>Delete</td>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let ct of this.getCustomTiles(); let i = index">
-                        <td>{{ct.name}}</td>
-                        <td>{{ct.description}}</td>
-                        <td>{{ct.link}}</td>
-                        <button class="btn btn-danger" (click)="deleteTile(ct.id, i)">Delete</button>
-                    </tr>
-                </tbody>
-            </table>
-
-            <br/>
-
-            <div class="col m-0 p-0">
-                <h3>Users</h3>
-                <table id="account-list" class="table table-striped">
-                    <thead>
-                        <tr>
-                            <td>Full Name</td>
-                            <td>Email</td>
-                            <td>Graduation Year</td>
-                            <td>Mailing List?</td>
-                            <td>Registration Date</td>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let u of this.getUsers()">
-                            <td>
-                                <a routerLink="/profile/{{u.id}}">{{u.full_name}}</a>
-                            </td>
-                            <td>{{u.email}}</td>
-                            <td>{{u.grad_date}}</td>
-                            <td>{{u.mass_mail_optin}}</td>
-                            <td title="Registered on {{u.registration_date | date : 'medium'}}">{{u.registration_date | timeAgo}}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
   <div class="row m-1 center">
 
     <div class="col m-0 p-0">
@@ -129,6 +78,19 @@
       </form>
 
       <br/>
+
+      <h5 class="mb-3">Create New Poll</h5>
+      <button class="btn btn-md btn-success" (click)="open(content)">Add Poll</button>
+
+      <div class="row">
+          <h5 class="mb-3">Change a member's sign-in amount</h5>
+          <button class="btn btn-lg btn-outline-success alterSignIn" (click)="open(alterSignInModal)">Change meeting sign-in count</button>
+      </div>
+
+      <div class="row">
+          <h5 class="mb-3">Create a new meeting</h5>
+          <button class="btn btn-lg btn-outline-success alterSignIn" (click)="open(createMeetingModal)">Create meeting</button>
+      </div>
 
       <h5 class="mb-3">Elections</h5>
       <button *ngIf="!notifications.electionResults" class="btn btn-md btn-success" (click)="open(content)">Create new Poll</button>
@@ -265,8 +227,6 @@
     </div>
     <button (click)="deleteResults()" class="btn btn-primary btn-lg btn-block">Delete all election results</button>
   </div>
-
-</div>
 
 <!-- Change meeting sign-in Modal Popup -->
 <ng-template #alterSignInModal let-c="close" let-d="dismiss">
