@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { RestService } from '../rest.service';
-import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
-import { NgForm, FormBuilder, FormGroup, Validators, FormArray, FormControl } from '@angular/forms';
-import { SessionService } from '../session.service';
 import { IMultiSelectOption, IMultiSelectSettings, IMultiSelectTexts } from 'angular-2-dropdown-multiselect';
+import { NgForm, FormGroup, FormBuilder, FormsModule, Validators, FormArray, FormControl } from '@angular/forms';
+import { RestService } from '../rest.service';
+import {NgbModal, ModalDismissReasons} from '@ng-bootstrap/ng-bootstrap';
+import { SessionService } from '../session.service';
 
 @Component({
   selector: 'app-admin',
@@ -38,6 +38,18 @@ export class AdminComponent implements OnInit {
     endingElection: false,
     deletingResults: false
   }
+    public signInForm: FormGroup;
+    signInNotifications = { emptyField: false }
+    private nums = ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20'];
+
+    public createMeetingForm: FormGroup;
+    createMeetingNotifications = { emptyField: false }
+    private weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    private reoccuringBool = ['Yes', 'No'];
+    private createBool = ['Create', 'Remove'];
+
+    private title = 'Admin Page';
+
 
   constructor(private sessionService: SessionService, private requests: RestService, private modalService: NgbModal,
     private formBuilder: FormBuilder) { }
@@ -72,6 +84,14 @@ export class AdminComponent implements OnInit {
     if (!this.sessionService.getElection()) {
       this.getResults();
     }
+    
+    this.signInForm = this.formBuilder.group({
+        signInInfo: this.formBuilder.array([ this.createSignInArr()])
+    });
+
+    this.createMeetingForm = this.formBuilder.group({
+        createMeetingInfo: this.formBuilder.array([ this.createCreateMeetingArr()])
+    }); 
   }
 
   // Returns an array of all the accounts that gets diplayed in the webpage
@@ -272,4 +292,163 @@ export class AdminComponent implements OnInit {
   public getElection() {
     return this.sessionService.getElection();
   }
+
+// ------- sign in modal stuff --------
+    
+    createSignInArr(): FormGroup {
+        return this.formBuilder.group({
+            member: ['',[Validators.required]],
+            signInCount: ['', [Validators.required]]
+        });
+    }
+
+    public addItemToSignInArray(): void {
+        const control = <FormArray>this.signInForm.controls['signInInfo'];
+        control.push(this.createSignInArr());
+    }
+
+
+    private emptySignInForm(form: any) {
+        for (let x of form.signInInfo) {
+            if (x.member === '') {
+                return true;
+            }
+            if (x.signInCount.length === 0) {
+                return true;
+            }
+        }
+    }
+
+    //called when submit button
+    public onSignInSubmit(formValue: any) {
+        if (this.emptySignInForm(formValue.value)) {
+          this.signInNotifications.emptyField = true;
+          return;
+        }
+        let data = {email:formValue.value.signInInfo[0].member, val:parseInt(formValue.value.signInInfo[0].signInCount)};
+        let func = "meeting set";
+        this.sessionService.meetingSignIn(data, func).subscribe(
+            //res => {
+                //if (res === "Success") {alert('You have successfully signed in!');}
+                //else { alert('There was a problem signing in');}
+            //},
+            //err => {
+                //alert('An error was encountered');
+            //}
+        );
+    }
+
+    public onSignInCountSubmit (formValue: any) {
+        if (this.emptySignInForm(formValue.value)) {
+          this.signInNotifications.emptyField = true;
+          return;
+        }
+        //MAKE SESSION SERVICE FUNCTION HERE
+    }
+
+    public getNums() {
+        return this.nums;
+    }
+
+    // get page title
+    public getTitle() {
+        return this.title;
+    }
+
+// ------- create meeting modal stuff --------
+
+    createCreateMeetingArr(): FormGroup {
+        return this.formBuilder.group({
+            weekDay: ['',[Validators.required]],
+            startTime: ['', [Validators.required]],
+            endTime : ['', [Validators.required]],
+            reoccuring : ['', Validators.required],
+            create : ['', Validators.required]
+        });
+    }
+
+    private emptyCreateMeetingForm(form: any) {
+        for (let x of form.createMeetingInfo) {
+            if (x.weekDay === '' || x.startTime === '' || x.endTime === '' || x.reoccuring === '' || x.create === '') {
+                return true;
+            }
+        }
+    }
+
+    //called when submit button
+    public onCreateMeetingSubmit(formValue: any) {
+        if (this.emptyCreateMeetingForm(formValue.value)) {
+          this.createMeetingNotifications.emptyField = true;
+          return;
+        }
+
+
+        //alter values here so they can have more user friendly default values
+        if (formValue.value.createMeetingInfo[0].reoccuring === 'Yes') {
+        formValue.value.createMeetingInfo[0].reoccuring = '1';
+        }
+        else {
+        formValue.value.createMeetingInfo[0].reoccuring = '0';
+        }
+        if (formValue.value.createMeetingInfo[0].create === 'Create') {
+        formValue.value.createMeetingInfo[0].create = '1';
+        }
+        else {
+        formValue.value.createMeetingInfo[0].create = '0';
+        }
+
+        if (formValue.value.createMeetingInfo[0].weekDay === 'Sunday') {
+        formValue.value.createMeetingInfo[0].weekDay = '0';
+        }
+        if (formValue.value.createMeetingInfo[0].weekDay === 'Monday') {
+        formValue.value.createMeetingInfo[0].weekDay = '1';
+        }
+        if (formValue.value.createMeetingInfo[0].weekDay === 'Tuesday') {
+        formValue.value.createMeetingInfo[0].weekDay = '2';
+        }
+        if (formValue.value.createMeetingInfo[0].weekDay === 'Wednesday') {
+        formValue.value.createMeetingInfo[0].weekDay = '3';
+        }
+        if (formValue.value.createMeetingInfo[0].weekDay === 'Thursday') {
+        formValue.value.createMeetingInfo[0].weekDay = '4';
+        }
+        if (formValue.value.createMeetingInfo[0].weekDay === 'Friday') {
+        formValue.value.createMeetingInfo[0].weekDay = '5';
+        }
+        if (formValue.value.createMeetingInfo[0].weekDay === 'Saturday') {
+        formValue.value.createMeetingInfo[0].weekDay = '6';
+        }
+
+        formValue.value.createMeetingInfo[0].startTime = (formValue.value.createMeetingInfo[0].startTime).concat(':00');
+        formValue.value.createMeetingInfo[0].endTime = (formValue.value.createMeetingInfo[0].endTime).concat(':00');
+ 
+        let data = {
+            day_of_week: Number(formValue.value.createMeetingInfo[0].weekDay),
+            start_time: formValue.value.createMeetingInfo[0].startTime , 
+            end_time: formValue.value.createMeetingInfo[0].endTime, 
+            reoccuring: Number(formValue.value.createMeetingInfo[0].reoccuring)
+        };
+
+        this.sessionService.createMeeting(data, formValue.value.createMeetingInfo[0].create).subscribe(
+            res => {
+               if (res.status === 200) {alert('You have successfully created a meeting!');}
+                else { alert('There was a problem creating a meeting');}
+            },
+            err => {
+                alert('An error was encountered when trying to create the meeting');
+            }
+        );
+    }
+
+    public getDays() {
+        return this.weekDays;
+    }
+
+    public getReoccuring() {
+        return this.reoccuringBool;
+    }
+    
+    public getCreate() {
+        return this.createBool;
+    }
 }

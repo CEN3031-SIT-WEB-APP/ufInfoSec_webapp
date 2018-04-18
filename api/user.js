@@ -152,4 +152,35 @@ routes.post('/user/profile/:user_id', async function(req, res, next) {
 	update_user_profile(req.params.user_id, req, res, next);
 });
 
+routes.post('/user/signin', async function(req, res, next) {
+	try {
+	switch (req.body.func) {
+		case "meeting set":
+			//console.log(req.body.data.email);
+			await account_mgmt.meetingSet(req.session.account_id, req.body.data.val);
+			//await account_mgmt.meetingSet(req.body.data.email, req.body.data.val);
+			break;
+		case "meeting inc":
+			await account_mgmt.meetingInc(req.session.account_id);
+			break;
+		case "meeting reset":
+			await account_mgmt.meetingRstAll();
+			break;
+		case "meeting inc all":
+			await account_mgmt.meetingIncAll();
+			break;
+		case "meeting cond inc":
+			if(await account_mgmt.meetingCondInc(req.session.account_id) === 0){
+				res.status(304).send('Success');
+			}
+			break;
+		default:
+			console.log("meeting: that func doesnt exist");
+			break;
+	}
+	res.status(200).send('Success');
+} catch (error) { return next(error) }
+
+});
+
 module.exports = routes;

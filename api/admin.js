@@ -53,4 +53,20 @@ routes.post('/admin/poll', async (req, res, next) => {
 	}
 });
 
+routes.post('/admin/meeting', async (req, res, next) => {
+    if (util.account_has_admin(req.account)) {
+        try {
+            if(Number(req.body.create) === 0){
+                await admin_mgmt.deleatMeeting(req.body.data);
+            }else{
+                await admin_mgmt.insertMeeting(req.body.data);
+            }
+            res.status(200).send('Success');
+        } catch (error) { return next(error) }
+    } else {
+        res.status(403).send('Access denied');
+    }
+});
+
+
 module.exports = routes;

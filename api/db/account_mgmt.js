@@ -165,6 +165,147 @@ let account_mgmt_module = (function () {
         validate_session: db_mgmt.get_session,
         get_account_by_id: db_mgmt.retrieve_by_id,
     };
+	async function generate_session_token(account_id, ip_address, browser, time_to_expiration) {
+		let token = crypto.randomBytes(16).toString('hex');
+		let start_date = new Date(Date.now());
+		let expire_date = new Date(Date.now() + time_to_expiration);
+
+		await db_mgmt.create_session(token, account_id,
+				start_date, expire_date, ip_address, browser);
+
+		/* Put in a timeout to remove the session from the database when its cookie expires */
+		setTimeout(
+			function() {
+				console.log('Expiring old session ' + token);
+				invalidate_session(token);
+			},
+			time_to_expiration
+		);
+
+		return token;
+	}
+
+	/* Removes any entries in the DB with a matching session id */
+	async function invalidate_session(session_token) {
+		await db_mgmt.remove_session(session_token);
+	}
+
+	function isEmail(email) {
+		return /^([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22))*\x40([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d))*$/.test( email ); // eslint-disable-line
+	}
+
+
+	/* Get ID of account */
+	/*
+	async function getID(account_name, account_email){
+		data = db_mgmt.retrieve(account_email);
+		if(data.full_name == account_name){
+			console.log(data.id);
+		}
+		return data.id;
+	}
+	*/
+
+    /* Meetings Set */
+    async function meetingSet(account_id, val) {
+        const data = await db_mgmt.retrieve_by_id(account_id); // get data from account
+        data.total_meetings = val; // set total_meetings
+		return await db_mgmt.update_account(account_id, data);
+    }
+	
+    /* Meetings Get */
+    async function meetingGet(account_id) {
+        const data = await db_mgmt.retrieve_by_id(account_id); // get data from account
+        return await data.total_meetings; //return total_meetings
+    }
+
+    /* Meetings Inc */
+    async function meetingInc(account_id) {
+		
+		const data = await db_mgmt.retrieve_by_id(account_id);
+		data.total_meetings++;
+		return await db_mgmt.update_account(account_id, data);
+    }
+
+    /* Meetings Cond Inc */
+    async function meetingCondInc(account_id) {
+
+		var date = new Date;
+		//meeting happening now?
+		const meeting = await db_mgmt.search_for_meeting(date);
+		if(meeting === 0) { 
+			console.log("meeting doesnt exist");
+			return 0; //meeting doesnt exist
+		}
+
+		//already signed in?
+		const signin = await db_mgmt.search_meeting_signin(account_id, meeting.meeting_id);
+		if(signin === 0) {
+			console.log("second login attempt");
+			return 0; //second login attempt
+		} 
+
+		if(signin === -1){
+			console.log("error in search_meeting_signin");
+			return -1; //error
+		}
+
+		//need to signin
+		const stat = await db_mgmt.add_meeting_signin(meeting.meeting_id, account_id);
+		if(stat.length === 0) {
+			console.log("error adding to list");
+			return -1;
+		} 
+		console.log("added account, inc meetings");
+		meetingInc(account_id); //increment accounts total meetings
+
+		return 1;
+    }
+    
+    /* Meeting Reset all */
+    async function meetingRstAll() {
+		//const session_table = await queryAsync('SELECT id FROM `account`'); //get all ids from account table	
+		const session_table = await db_mgmt.get_session_table(); //get all ids from account table	
+		for(var i = 0; i<session_table.length;i++){
+			try {
+				await meetingSet(session_table[i],0);
+			} catch (err) {
+				console.log("Didn't reset this meeting entries:");
+				console.log(session_table[i]);
+			}
+		}	
+    }
+
+    /* Meeting Inc All */
+    async function meetingIncAll() {
+        //session_table = await queryAsync('SELECT id FROM `session`'); //get all ids from account table
+		const session_table = await db_mgmt.get_session_table(); //get all ids from account table	
+		for(var i = 0; i<session_table.length;i++){
+			try {
+				await meetingInc(session_table[i]);
+			} catch (err) {
+				console.log("Didn't inc this meeting entries:");
+				console.log(session_table[i]);				
+			}
+		}
+    }
+
+	// Revealing Module: Return public interface
+	return {
+		// Public methods here
+		register_new_user: register_new_user,
+		authenticate: authenticate,
+		update_account: update_account,
+		generate_session_token: generate_session_token,
+		validate_session: db_mgmt.get_session,
+		get_account_by_id: db_mgmt.retrieve_by_id,
+		meetingSet: meetingSet,
+        meetingGet: meetingGet,
+        meetingInc: meetingInc,
+        meetingCondInc: meetingCondInc,
+        meetingRstAll: meetingRstAll,
+        meetingIncAll: meetingIncAll,
+	};
 });
 
 module.exports = account_mgmt_module();

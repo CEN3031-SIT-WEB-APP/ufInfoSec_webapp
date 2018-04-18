@@ -129,6 +129,7 @@ let db_mgmt_module = function () {
                 registration_date: util.mysql_iso_time(new Date(Date.now())),
                 grad_date: new_account.grad_date,
                 mass_mail_optin: new_account.in_mailing_list,
+                total_meetings: 0
             };
 
             return await queryAsync('INSERT INTO `account` SET ?', values);
@@ -194,7 +195,7 @@ let db_mgmt_module = function () {
 
     async function list_users() {
         return await queryAsync('SELECT ?? FROM `account`',
-            [['id', 'email', 'full_name', 'mass_mail_optin', 'grad_date', 'registration_date']]);
+            [['id', 'email', 'full_name', 'mass_mail_optin', 'grad_date', 'registration_date', 'total_meetings']]);
     }
 
     async function add_tile(name, description, link) {
@@ -511,6 +512,109 @@ let db_mgmt_module = function () {
 
     async function delete_tile(id) {
         return await queryAsync('UPDATE `tiles` SET `deleted` = TRUE WHERE `id` = ?', id);
+
+    /* search meeting table for a date to see if a meeting is occuring */
+    async function search_for_meeting(date) {
+
+        const meeting = await queryAsync('SELECT * FROM `meeting` WHERE `day_of_week` = ?',
+        [date.getDay()]);
+        
+        if(meeting.length === 0){ //no meeting today
+            return 0;
+        }
+
+        var i;
+        for(i=0; i<meeting.length; i++){
+            var fail = 0;
+            if(Number(meeting[i].reoccuring) === 0){
+                //Get 1 day in milliseconds
+                var one_day=1000*60*60*24;
+                // Convert both dates to milliseconds
+                var date1_ms = date.getTime();
+                var date2_ms = new Date(meeting[i].created_on);
+                date2_ms = date2_ms.getTime();
+                // Calculate the difference in milliseconds
+                var difference_ms = Math.round(date2_ms - date1_ms);
+                // Convert back to days and return
+                var diff_days = Math.abs(Math.round(difference_ms/one_day)) || 0; 
+                //if not reocurring
+                if(diff_days >= 7){
+                    fail = 1;
+                }
+            }
+            var start_hour = Number(meeting[i].start_time.substr(0,2));
+            var end_hour = Number(meeting[i].end_time.substr(0,2));
+            var start_min = Number(meeting[i].start_time.substr(3,2));
+            var end_min = Number(meeting[i].end_time.substr(3,2));
+            if( //within hours
+            start_hour <= date.getHours() &&
+            end_hour >= date.getHours()
+            ){
+                if( //if first hour, and not passed minutes, 
+                start_hour === date.getHours() &&
+                start_min > date.getMinutes()
+                ){
+                    //fail
+                    fail = 1;
+                }
+
+                if//if last hour, and passed minutes
+                (end_hour === date.getHours() &&
+                end_min < date.getMinutes())
+                {
+                    //fail
+                    fail = 1;
+                }
+
+                //pass?
+                if(fail !== 1){
+                    return meeting[i];
+                }
+
+            } 
+        }    
+        return 0;
+    }
+
+    /* Determine if a user can signin to a meeting but checking signin table and meeting table */
+    async function search_meeting_signin(account_id, meeting_id) {
+        const signin = await queryAsync('SELECT * FROM `meeting_signin` WHERE `account_id` = ? AND `meeting_id` = ?',
+        [account_id, meeting_id]);
+        if(signin.length === 0){ //not in the table for this meeting
+            return 1;
+        }
+        //in the table for this meeting, but it could be a prior meeting
+        //was this meeting reoccuring?
+        const meeting = await queryAsync('SELECT * FROM `meeting` WHERE `meeting_id` = ?',
+        [meeting_id]);
+        if(meeting.length === 0){
+            return -1; //error
+        }
+        if(!meeting[0].reocurring){
+            //meeting is not reocurring and they are in the table for this meeting, so this is a second loggin attempt
+            return 0;
+        }
+
+        //meeting is reoccuring, check the time that they signed in last
+        var date = new Date; 
+        if(signin[0].time.getDate() === date.getDate() && 
+        signin[0].time.getMonth() === date.getMonth() &&
+        signin[0].time.getYear() === date.getYear()){
+            //user is already logged in for this meeting, seccond login attempt
+            return 0;
+        }
+
+        return 1; //user is not logged in this meeting
+    }
+
+    /* Add a user to the meeting signin table */
+    async function add_meeting_signin(meeting_id, account_id) {
+        const values = {
+            account_id: account_id,
+            meeting_id: meeting_id,
+            time: new Date(),
+            };
+        return await queryAsync('INSERT INTO `meeting_signin` SET ?', values);
     }
 
     /* Get a list of the user's writeup submissions */
@@ -639,6 +743,17 @@ let db_mgmt_module = function () {
     async function set_resume_questions(account_id, new_data) {
         return await queryAsync('UPDATE `account` SET `research`=?,`internship`=?,`major`=?,`grad_date`=?,`gpa`=? WHERE `id`=?',
                                 [new_data.research, new_data.internship, new_data.major, new_data.grad_date, new_data.gpa, account_id]);
+    async function get_session_table(){
+        return await queryAsync('SELECT id FROM `account`');
+    }
+
+    async function insertMeeting(values){
+        values.created_on = new Date();
+        return await queryAsync('INSERT INTO `meeting` SET ?', values);
+    }
+
+    async function deleatMeeting(values) {
+        return await queryAsync('DELETE FROM `meeting` WHERE start_time = ? AND end_time = ? AND day_of_week = ?', [values.start_time, values.end_time, values.day_of_week]);
     }
 
     // Revealing module
@@ -652,6 +767,9 @@ let db_mgmt_module = function () {
         remove_session: remove_session,
         sign_in: sign_in,
         get_sign_ins: get_sign_ins,
+        search_for_meeting: search_for_meeting,
+        search_meeting_signin: search_meeting_signin,
+        add_meeting_signin: add_meeting_signin,
         list_users: list_users,
         get_user_writeup_submissions: get_user_writeup_submissions,
         get_all_writeup_submissions: get_all_writeup_submissions,
@@ -688,7 +806,10 @@ let db_mgmt_module = function () {
         total_writeup_clicks: total_writeup_clicks,
         unique_writeup_clicks: unique_writeup_clicks,
         delete_writeup: delete_writeup,
-        delete_file: delete_file
+        delete_file: delete_file,
+        get_session_table: get_session_table,
+        insertMeeting: insertMeeting,
+        deleatMeeting: deleatMeeting,
     });
 };
 

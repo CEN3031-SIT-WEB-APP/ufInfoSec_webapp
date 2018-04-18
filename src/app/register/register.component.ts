@@ -109,30 +109,11 @@ export class RegisterComponent implements OnInit {
         } else {
           this.notifications.generic_error = true;
         }
-      });
-
-        // otherwise, submit the form data to create a new account
-        this.sessionService.register(this.formData.value)
-            .subscribe(
-                res => {
-                    // if the account was created successfully, notify user and
-                    // navigate to the login page
-                    if (res === 'Success') {
-                        alert('Success! Your account has been created. You may now log in');
-                        this.router.navigate(['/login']);
-                        // depending on the error code, display the appropriate notification
-                    } else if (res.status === 409) {
-                        this.notifications.email_conflict = true;
-                    } else if (res.status === 400) {
-                        this.notifications.bad_request = true;
-                    } else {
-                        this.notifications.generic_error = true;
-                    }
-                },
-                // called if there was an error while creatign the account
-                err => {
-                    this.notifications.bad_request = true;
-                }
-            );
-    }
+      },
+      // called if there was an error while creating the account
+      err => {
+        this.notifications.bad_request = true;
+      }
+    );
+  }
 }
