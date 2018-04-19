@@ -155,46 +155,6 @@ let account_mgmt_module = (function () {
         return /^([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22))*\x40([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d))*$/.test(email); // eslint-disable-line
     }
 
-    // Revealing Module: Return public interface
-    return {
-        // Public methods here
-        register_new_user: register_new_user,
-        authenticate: authenticate,
-        update_account: update_account,
-        generate_session_token: generate_session_token,
-        validate_session: db_mgmt.get_session,
-        get_account_by_id: db_mgmt.retrieve_by_id,
-    };
-	async function generate_session_token(account_id, ip_address, browser, time_to_expiration) {
-		let token = crypto.randomBytes(16).toString('hex');
-		let start_date = new Date(Date.now());
-		let expire_date = new Date(Date.now() + time_to_expiration);
-
-		await db_mgmt.create_session(token, account_id,
-				start_date, expire_date, ip_address, browser);
-
-		/* Put in a timeout to remove the session from the database when its cookie expires */
-		setTimeout(
-			function() {
-				console.log('Expiring old session ' + token);
-				invalidate_session(token);
-			},
-			time_to_expiration
-		);
-
-		return token;
-	}
-
-	/* Removes any entries in the DB with a matching session id */
-	async function invalidate_session(session_token) {
-		await db_mgmt.remove_session(session_token);
-	}
-
-	function isEmail(email) {
-		return /^([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22))*\x40([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d))*$/.test( email ); // eslint-disable-line
-	}
-
-
 	/* Get ID of account */
 	/*
 	async function getID(account_name, account_email){

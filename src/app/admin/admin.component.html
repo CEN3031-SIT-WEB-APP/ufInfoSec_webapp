@@ -89,7 +89,7 @@
 
       <div class="row">
           <h5 class="mb-3">Create a new meeting</h5>
-          <button class="btn btn-lg btn-outline-success alterSignIn" (click)="open(createMeetingModal)">Create meeting</button>
+          <button class="btn btn-lg btn-outline-success alterSignIn" (click)="open(createMeetingModal)">Create/Remove meeting</button>
       </div>
 
       <h5 class="mb-3">Elections</h5>
@@ -149,17 +149,7 @@
             <ss-multiselect-dropdown class="m-0 ml-1 mr-1" [options]="myOptions" formControlName="position" [settings]="mySettings">
             </ss-multiselect-dropdown>
             <button class="btn btn-danger p-1 m-0 ml-2" (click)="deleteField(i)"> Delete </button>
-          </div>
-            <div class="row">
-                <h5 class="mb-3">Change a member's sign-in amount</h5>
-                <button class="btn btn-lg btn-outline-success alterSignIn" (click)="open(alterSignInModal)">Change meeting sign-in count</button>
-            </div>
-
-            <div class="row">
-                <h5 class="mb-3">Create a new meeting</h5>
-                <button class="btn btn-lg btn-outline-success alterSignIn" (click)="open(createMeetingModal)">Create meeting</button>
-            </div>
-
+          </div>            
         </div>
       </div>
 
@@ -227,6 +217,8 @@
     </div>
     <button (click)="deleteResults()" class="btn btn-primary btn-lg btn-block">Delete all election results</button>
   </div>
+</ng-template>
+
 
 <!-- Change meeting sign-in Modal Popup -->
 <ng-template #alterSignInModal let-c="close" let-d="dismiss">

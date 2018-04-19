@@ -88,14 +88,6 @@ async function update_user_profile(account_id, req, res, next) {
 			return;
 		}
 
-/*
-		if (req.body.old_password === req.body.confirm_password) {
-			console.log('Old password cannot equal the new password');
-			res.status(400).send('Old password cannot equal the new password');
-			return;
-		}
-*/
-
 		// if it is correct, change it to the new one
 		updated_items.push(['Password', 'password', 'new_password']);
 
