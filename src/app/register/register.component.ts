@@ -40,9 +40,11 @@ export class RegisterComponent implements OnInit {
         Validators.required
       ]],
       email: ['', [
-        Validators.required,
         // tslint:disable-next-line:max-line-length
         Validators.pattern(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)]],
+      ufl_email: ['', [
+        // tslint:disable-next-line:max-line-length
+        Validators.pattern(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@ufl.edu/)]],
       password: ['', [
         Validators.required
       ]],
@@ -59,10 +61,14 @@ export class RegisterComponent implements OnInit {
   signWaiver(event) {
     if (event.target.checked) {
       this.checkedWaiver = true;
-    }
-    else {
+    } else {
       this.checkedWaiver = false;
     }
+  }
+
+  // used in unit testing
+  checkWaiver() {
+    this.checkedWaiver = true;
   }
 
   // function is called when the user clicks the submit button
@@ -80,9 +86,7 @@ export class RegisterComponent implements OnInit {
         this.formData.value.password !== this.formData.value.confirm_password ||
         this.formData.value.grad_date === 'Select a semester' ||
         this.formData.value.email === this.formData.value.ufl_email ||
-        (this.formData.value.email === '' && this.formData.value.ufl_email === '') ||
-        (this.formData.value.email === 'left_blank@ufl.edu' || this.formData.value.ufl_email === 'left_blank@ufl.edu')) 
-        {
+        (this.formData.value.email === 'left_blank@ufl.edu' && this.formData.value.ufl_email === 'left_blank@ufl.edu')) {
       this.notifications.invalid_credentials = true;
       return;
     }
@@ -93,8 +97,7 @@ export class RegisterComponent implements OnInit {
     }
 
     // otherwise, submit the form data to create a new account
-    this.sessionService.register(this.formData.value)
-    .subscribe(
+    this.sessionService.register(this.formData.value).subscribe(
       res => {
         // if the account was created successfully, notify user and
         // navigate to the login page
@@ -110,7 +113,7 @@ export class RegisterComponent implements OnInit {
           this.notifications.generic_error = true;
         }
       },
-      // called if there was an error while creating the account
+      // called if there was an error while creatign the account
       err => {
         this.notifications.bad_request = true;
       }
