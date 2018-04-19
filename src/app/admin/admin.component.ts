@@ -327,14 +327,15 @@ export class AdminComponent implements OnInit {
         }
         let data = {email:formValue.value.signInInfo[0].member, val:parseInt(formValue.value.signInInfo[0].signInCount)};
         let func = "meeting set";
+        console.log(data);
         this.sessionService.meetingSignIn(data, func).subscribe(
-            //res => {
-                //if (res === "Success") {alert('You have successfully signed in!');}
-                //else { alert('There was a problem signing in');}
-            //},
-            //err => {
-                //alert('An error was encountered');
-            //}
+            res => {
+                if (res.status === 200) {alert('You have successfully signed in!');}
+                else { alert('There was a problem signing in');}
+            },
+            err => {
+                alert('An error was encountered');
+            }
         );
     }
 
@@ -431,11 +432,11 @@ export class AdminComponent implements OnInit {
 
         this.sessionService.createMeeting(data, formValue.value.createMeetingInfo[0].create).subscribe(
             res => {
-               if (res.status === 200) {alert('You have successfully created a meeting!');}
-                else { alert('There was a problem creating a meeting');}
+               if (res.status === 200) {alert('You have successfully created/removed a meeting!');}
+                else { alert('There was a problem creating/removing a meeting');}
             },
             err => {
-                alert('An error was encountered when trying to create the meeting');
+                alert('An error was encountered when trying to create/remove the meeting');
             }
         );
     }
