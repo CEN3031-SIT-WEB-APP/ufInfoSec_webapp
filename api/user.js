@@ -148,18 +148,24 @@ routes.post('/user/signin', async function(req, res, next) {
 	try {
 	switch (req.body.func) {
 		case "meeting set":
-			//console.log(req.body.data.email);
-			await account_mgmt.meetingSet(req.session.account_id, req.body.data.val);
-			//await account_mgmt.meetingSet(req.body.data.email, req.body.data.val);
+			if (util.account_has_admin(req.account)) {
+				await account_mgmt.meetingSet(req.session.account_id, req.body.data.val);
+			}
 			break;
 		case "meeting inc":
-			await account_mgmt.meetingInc(req.session.account_id);
+			if (util.account_has_admin(req.account)) {
+				await account_mgmt.meetingInc(req.session.account_id);
+			}
 			break;
 		case "meeting reset":
-			await account_mgmt.meetingRstAll();
+			if (util.account_has_admin(req.account)) {
+				await account_mgmt.meetingRstAll();
+			}
 			break;
 		case "meeting inc all":
-			await account_mgmt.meetingIncAll();
+			if (util.account_has_admin(req.account)) {
+				await account_mgmt.meetingIncAll();
+			}
 			break;
 		case "meeting cond inc":
 			if(await account_mgmt.meetingCondInc(req.session.account_id) === 0){

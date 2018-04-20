@@ -217,8 +217,10 @@ let account_mgmt_module = (function () {
 			return -1;
 		} 
 		console.log("added account, inc meetings");
-		meetingInc(account_id); //increment accounts total meetings
-
+		const data = await db_mgmt.retrieve_by_id(account_id);
+		data.total_meetings++;
+        await db_mgmt.update_account(account_id, data);
+        
 		return 1;
     }
     
