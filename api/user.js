@@ -148,29 +148,34 @@ routes.post('/user/signin', async function(req, res, next) {
 	try {
 	switch (req.body.func) {
 		case "meeting set":
-			if (util.account_has_admin(req.account)) {
-				await account_mgmt.meetingSet(req.session.account_id, req.body.data.val);
-			}
+			// if (util.account_has_admin(req.session.account)) {
+				const id = await account_mgmt.get_id(req.body.data.email);
+				if(id<0){
+					console.log("ERROR bad email");
+				}else{
+					await account_mgmt.meetingSet(id, req.body.data.val);
+				}
+			// }
 			break;
 		case "meeting inc":
-			if (util.account_has_admin(req.account)) {
+			// if (util.account_has_admin(req.session.account)) {
 				await account_mgmt.meetingInc(req.session.account_id);
-			}
+			// }
 			break;
 		case "meeting reset":
-			if (util.account_has_admin(req.account)) {
+			// if (util.account_has_admin(req.session.account)) {
 				await account_mgmt.meetingRstAll();
-			}
+			// }
 			break;
 		case "meeting inc all":
-			if (util.account_has_admin(req.account)) {
+			// if (util.account_has_admin(req.session.account)) {
 				await account_mgmt.meetingIncAll();
-			}
+			// }
 			break;
 		case "meeting cond inc":
-			if(await account_mgmt.meetingCondInc(req.session.account_id) === 0){
+			// if(await account_mgmt.meetingCondInc(req.session.account_id) === 0){
 				res.status(304).send('Success');
-			}
+			// }
 			break;
 		default:
 			console.log("meeting: that func doesnt exist");

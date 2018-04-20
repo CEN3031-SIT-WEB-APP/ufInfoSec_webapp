@@ -153,21 +153,11 @@ let account_mgmt_module = (function () {
 
     function isEmail(email) {
         return /^([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22))*\x40([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d))*$/.test(email); // eslint-disable-line
-    }
-
-	/* Get ID of account */
-	/*
-	async function getID(account_name, account_email){
-		data = db_mgmt.retrieve(account_email);
-		if(data.full_name == account_name){
-			console.log(data.id);
-		}
-		return data.id;
-	}
-	*/
+    }	
 
     /* Meetings Set */
     async function meetingSet(account_id, val) {
+        console.log(account_id);
         const data = await db_mgmt.retrieve_by_id(account_id); // get data from account
         data.total_meetings = val; // set total_meetings
 		return await db_mgmt.update_account(account_id, data);
@@ -252,6 +242,11 @@ let account_mgmt_module = (function () {
 		}
     }
 
+    /* get id*/
+    async function get_id(email) {
+        return await db_mgmt.get_id(email);
+    }
+
 	// Revealing Module: Return public interface
 	return {
 		// Public methods here
@@ -267,6 +262,7 @@ let account_mgmt_module = (function () {
         meetingCondInc: meetingCondInc,
         meetingRstAll: meetingRstAll,
         meetingIncAll: meetingIncAll,
+        get_id: get_id,
 	};
 });
 

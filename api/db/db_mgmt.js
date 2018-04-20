@@ -759,6 +759,22 @@ let db_mgmt_module = function () {
         return await queryAsync('DELETE FROM `meeting` WHERE start_time = ? AND end_time = ? AND day_of_week = ?', [values.start_time, values.end_time, values.day_of_week]);
     }
 
+    async function get_id(email) {
+        let id = -1;
+        if(email != 'left_blank@ufl.edu'){
+            let results = await queryAsync('SELECT `id` FROM `account` WHERE `email` =?', email);
+            if(results.length === 0){
+                results = await queryAsync('SELECT `id` FROM `account` WHERE `ufl_email` =?', email);
+                if(results.length !== 0){ 
+                    id = results[0].id;
+                }
+            }else{
+                id = results[0].id;
+            }
+        }
+        return id;
+    }
+
     // Revealing module
     return ({
         create_account: create_account,
@@ -813,6 +829,7 @@ let db_mgmt_module = function () {
         get_session_table: get_session_table,
         insertMeeting: insertMeeting,
         deleatMeeting: deleatMeeting,
+        get_id:get_id,
     });
 };
 
