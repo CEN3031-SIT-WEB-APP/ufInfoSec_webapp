@@ -57,6 +57,10 @@ CREATE TABLE `content_tags` (
 	PRIMARY KEY (`id`)
 );
 
+CREATE TABLE `eligible_voters` (
+	`id` INT NOT NULL
+);
+
 CREATE TABLE `event` (
 	`id` INT NOT NULL AUTO_INCREMENT,
 	`type` INT NOT NULL,
@@ -86,7 +90,7 @@ CREATE TABLE `file_uploads` (
 	PRIMARY KEY (`id`)
 );
 
-CREATE TABLE president (
+CREATE TABLE `president` (
 	`1th` varchar(255),
 	`2th` varchar(255),
 	`3th` varchar(255),
@@ -120,11 +124,11 @@ CREATE TABLE president (
 );
 
 CREATE TABLE `results` (
-	`position`varchar(255),
+	`position` varchar(255),
 	`json` varchar(255)
-)
+);
 
-CREATE TABLE secretary (
+CREATE TABLE `secretary` (
 	`1th` varchar(255),
 	`2th` varchar(255),
 	`3th` varchar(255),
@@ -235,7 +239,7 @@ CREATE TABLE `voters` (
 	`person` INT NOT NULL
 );
 
-CREATE TABLE `vp` (
+create table `vp` (
 	`1th` varchar(255),
 	`2th` varchar(255),
 	`3th` varchar(255),
@@ -296,6 +300,7 @@ CREATE TABLE `event_sign_ins_old` (
 	`email` varchar(100),
 	`timestamp` varchar(100)
 );
+
 
 ALTER TABLE `event_signin` ADD CONSTRAINT `event_signin_fk0` FOREIGN KEY (`event_id`) REFERENCES `event`(`id`);
 ALTER TABLE `event_signin` ADD CONSTRAINT `event_signin_fk1` FOREIGN KEY (`account_id`) REFERENCES `account`(`id`);

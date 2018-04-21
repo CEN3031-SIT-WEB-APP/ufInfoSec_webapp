@@ -273,247 +273,522 @@ let db_mgmt_module = function () {
     }
 
 	/* Confirms whether the token corresponds to an active session. If it does, calls back
-		with the email associated with it.*/
-    async function get_session(session_token) {
-        const results = await queryAsync('SELECT * FROM `session` WHERE ?', { id: session_token });
-
-        if (results.length > 0) {
-            return results[0];
-        } else {
-            /* Otherwise, return a 404 (for no matching record) and null for the result*/
-            throw new createError.NotFound('No session with token ' + session_token);
+        with the email associated with it.*/
+        async function get_session(session_token) {
+            const results = await queryAsync('SELECT * FROM `session` WHERE ?', { id: session_token });
+    
+            if (results.length > 0) {
+                return results[0];
+            } else {
+                /* Otherwise, return a 404 (for no matching record) and null for the result*/
+                throw new createError.NotFound('No session with token ' + session_token);
+            }
         }
-    }
-
-    /* Remove an entry from the sessions table */
-    async function remove_session(session_id) {
-        return await queryAsync('DELETE FROM `session` WHERE id = ?', [session_id]);
-    }
-
-    /* Sign a user into an event */
-    async function sign_in(email, timestamp) {
-        let values = {
-            email: email,
-            timestamp: timestamp,
-        };
-
-        return await queryAsync('INSERT INTO `event_sign_ins_old` SET ?', values);
-    }
-
-    /* Get all signins for a user with a constraint of time */
-    async function get_sign_ins(email, after) {
-        return await queryAsync('SELECT * FROM `event_sign_ins_old` WHERE `email` = ? AND `timestamp` >= ?',
-            [email, after]);
-    }
-
-    // Function to store election within the database
-    async function create_poll(election) {
-        if (await election_exists()) {
-            throw new createError.Conflict('Cannot make a new poll when there is already one in process!');
+    
+        /* Remove an entry from the sessions table */
+        async function remove_session(session_id) {
+            return await queryAsync('DELETE FROM `session` WHERE id = ?', [session_id]);
         }
-        else {
-            await add_candidates(election);
+    
+        /* Sign a user into an event */
+        async function sign_in(email, timestamp) {
+            let values = {
+                email: email,
+                timestamp: timestamp,
+            };
+    
+            return await queryAsync('INSERT INTO `event_sign_ins_old` SET ?', values);
         }
-
-        // Helper function that checks if there is currently an election running
-        async function election_exists() {
+    
+        /* Get all signins for a user with a constraint of time */
+        async function get_sign_ins(email, after) {
+            return await queryAsync('SELECT * FROM `event_sign_ins_old` WHERE `email` = ? AND `timestamp` >= ?',
+                [email, after]);
+        }
+    
+        // Function to store election within the database
+        async function create_poll(election) {
+            if (await election_exists()) {
+                throw new createError.Conflict('Cannot make a new poll when there is already one in process!');
+            }
+            else {
+                await add_candidates(election);
+            }
+    
+            // Helper function that checks if there is currently an election running
+            async function election_exists() {
+                let results = await queryAsync('SELECT * FROM `candidates`');
+                return results.length > 0;
+            }
+    
+            // Helper function that stores candidates and their desired positions
+            async function add_candidates(election) {
+                election.forEach(function (element) {
+                    let values = {
+                        person: element.candidate,
+                        pres: 0,
+                        vp: 0,
+                        treas: 0,
+                        secr: 0
+                    }
+                    if (element.position.includes('President')) { values.pres = 1; }
+                    if (element.position.includes('VP')) { values.vp = 1; }
+                    if (element.position.includes('Treasurer')) { values.treas = 1; }
+                    if (element.position.includes('Secretary')) { values.secr = 1; }
+                    queryAsync('INSERT INTO `candidates` SET ?', values);
+                });
+            }
+        }
+    
+        // Returns true if there is currently an election; otherwise it returns false
+        async function current_election() {
             let results = await queryAsync('SELECT * FROM `candidates`');
             return results.length > 0;
         }
-
-        // Helper function that stores candidates and their desired positions
-        async function add_candidates(election) {
-            election.forEach(function (element) {
-                let values = {
-                    person: element.candidate,
-                    pres: 0,
-                    vp: 0,
-                    treas: 0,
-                    secr: 0
-                }
-                if (element.position.includes('President')) { values.pres = 1; }
-                if (element.position.includes('VP')) { values.vp = 1; }
-                if (element.position.includes('Treasurer')) { values.treas = 1; }
-                if (element.position.includes('Secretary')) { values.secr = 1; }
-                queryAsync('INSERT INTO `candidates` SET ?', values);
-            });
-        }
-    }
-
-    // Returns true if there is currently an election; otherwise it returns false
-    async function current_election() {
-        let results = await queryAsync('SELECT * FROM `candidates`');
-        return results.length > 0;
-    }
-
-    // Grabs the candidates for each position and puts them into a JSON object to be returned to the voting component
-    async function get_candidates() {
-        return {
-            'president': await queryAsync('SELECT `person` FROM `candidates` WHERE `pres` = 1'),
-            'vp': await queryAsync('SELECT `person` FROM `candidates` WHERE `vp` = 1'),
-            'treasurer': await queryAsync('SELECT `person` FROM `candidates` WHERE `treas` = 1', ),
-            'secretary': await queryAsync('SELECT `person` FROM `candidates` WHERE `secr` = 1')
-        }
-    }
-
-    // Returns true if a person has not voted yet
-    async function have_not_voted(user_id) {
-        let results = await queryAsync('SELECT * FROM `voters` WHERE `person` = ?', user_id);
-        return results.length < 1;
-    }
-
-    // Returns true if a person is elibible to vote
-    async function is_eligible() {
-        return true;
-        // TODO: ACTUAL CHECK OF THE DATABASE FOR ELIGIBILITY
-    }
-
-    // Validates and records a user's vote
-    // TODO: CATCH NULL VOTE
-    async function record_vote(vote, user_id) {
-        if (await verify_valid_vote()) {
-            try {
-                if (vote.president.length) await insert_votes('president', vote.president);
-                if (vote.vp.length) await insert_votes('vp', vote.vp);
-                if (vote.treasurer.length) await insert_votes('treasurer', vote.treasurer);
-                if (vote.secretary.length) await insert_votes('secretary', vote.secretary);
-                return await record_that_user_voted();
-            } catch (error) {
-                throw new createError.BadRequest('There seems to be a problem with the db.  Please contact the developers');
+    
+        // Grabs the candidates for each position and puts them into a JSON object to be returned to the voting component
+        async function get_candidates() {
+            return {
+                'president': await queryAsync('SELECT `person` FROM `candidates` WHERE `pres` = 1'),
+                'vp': await queryAsync('SELECT `person` FROM `candidates` WHERE `vp` = 1'),
+                'treasurer': await queryAsync('SELECT `person` FROM `candidates` WHERE `treas` = 1', ),
+                'secretary': await queryAsync('SELECT `person` FROM `candidates` WHERE `secr` = 1')
             }
         }
-        else {
-            throw new createError.BadRequest('There is an error in the request');
+    
+        // Returns true if a person has not voted yet
+        async function have_not_voted(user_id) {
+            let results = await queryAsync('SELECT * FROM `voters` WHERE `person` = ?', user_id);
+            return results.length < 1;
+        }
+    
+        // Returns true if a person is elibible to vote
+        async function is_eligible(id) {
+            let results = await queryAsync('SELECT * FROM eligible_voters WHERE id = ?', id);
+            return results.length > 0;
+        }
+        
+	// Validates and records a user's vote
+	async function record_vote(vote, user_id) {
+		if (await verify_valid_vote()) {
+			try {
+				sql_pool.getConnection(function(err, connection) {
+					if (err) { throw err; }
+
+					connection.beginTransaction(function(err) {
+						if(err) { throw err; }
+
+						// Every function called below is executed inside of the connection query
+						// thus, everything between here and commit will be rolled back in case of an error
+						record_that_user_voted(connection);
+						if (vote.president.length) { insert_votes('`president`', vote.president, connection); }
+						if (vote.vp.length) { insert_votes('`vp`', vote.vp, connection); }
+						if (vote.treasurer.length) { insert_votes('`treasurer`', vote.treasurer, connection); }
+						if (vote.secretary.length) { insert_votes('`secretary`', vote.secretary, connection); }
+
+						connection.commit(function(err) {
+							if (err) {
+								connection.rollback(function() {
+									throw err;
+								});
+							}
+						});
+
+						connection.release();
+					});
+				});
+			} catch (error) {
+				throw new createError.BadRequest('There seems to be a problem with the db.  Please contact the developers');
+			}
+		}
+		else {
+			throw new createError.BadRequest('There is an error in the request');
+		}
+
+		// Adds a users email to the voters table so that they cannot vote again
+		function record_that_user_voted(connection) {
+			connection.query('INSERT INTO `voters` SET ?', {person: user_id}, function(err) {
+				if (err) { throw err; }
+			});
+		}
+
+		// Verifies that a vote is valid
+		async function verify_valid_vote() {
+			try {
+				// Verifies all president choices
+				for (var pres of vote.president) {
+					let count = await queryAsync('SELECT `person` FROM `candidates` WHERE person=? AND `pres`=1', pres);
+					// If the person is not in the list of candidates for president return false
+					if (count.length < 1) { return false; }
+				}
+				//vote.president.length = 30;
+				// Verifies all vp choices
+				for (var pres of vote.vp) {
+					let count = await queryAsync('SELECT `person` FROM `candidates` WHERE person=? AND `vp`=1', pres);
+					if (count.length < 1) { return false; }
+				}
+				//vote.vp.length = 30;
+				// Verifies all Treasurer choices
+				for (var pres of vote.treasurer) {
+					let count = await queryAsync('SELECT `person` FROM `candidates` WHERE person=? AND `treas`=1', pres);
+					if (count.length < 1) { return false; }
+				}
+				//vote.treasurer.length = 30;
+				// Verifies all Secretary choices
+				for (var pres of vote.secretary) {
+					let count = await queryAsync('SELECT `person` FROM `candidates` WHERE person=? AND `secr`=1', pres);
+					if (count.length < 1) { return false; }
+				}
+				//vote.secretary.length = 30;
+				return true;
+			} catch (error) {	// Only catches an error when you have tried to vote for a person not running
+				return false;
+			}
+		}
+
+		// Records a users vote after it has been thoroughly validated
+		function insert_votes(position, candidate_array, connection) {
+			let values = {}
+			for (const [index, value] of candidate_array.entries()) {
+				values[(index + 1).toString() + 'th'] = value;
+			}
+			connection.query('INSERT INTO ' + position + ' SET ?', values, function (error) {
+				if (error) { throw error; }
+			});
+		}
+	}
+
+	async function end_election() {
+		if (await current_election()) {
+			await queryAsync('DELETE FROM `candidates`');
+		}
+		else {
+			throw new createError.BadRequest('There was an error trying to delete from the database');
+		}
+	}
+
+	// Grabs all the ranking of every position and returns those inside of a promise
+	async function get_votes() {
+		try {
+			const results = {
+				president: await queryAsync('SELECT * FROM `president`'),
+				vp: await queryAsync('SELECT * FROM `vp`'),
+				treasurer: await queryAsync('SELECT * FROM `treasurer`'),
+				secretary: await queryAsync('SELECT * FROM `secretary`')
+			}
+			return results;
+		} catch (error) {
+			throw new createError.BadRequest('There was an error trying to query the results of the election');
+		}
+	}
+
+	// Stores the results of an election
+	async function store_results(results) {
+		// Everything get converted to a string and the results are stored
+		try {
+			await queryAsync('INSERT INTO `results` SET ?', { position: 'president', json: JSON.stringify(results.president) });
+			await queryAsync('INSERT INTO `results` SET ?', { position: 'vp', json: JSON.stringify(results.vp) });
+			await queryAsync('INSERT INTO `results` SET ?', { position: 'treasurer', json: JSON.stringify(results.treasurer) });
+			await queryAsync('INSERT INTO `results` SET ?', { position: 'secretary', json: JSON.stringify(results.secretary) });
+		} catch (error) {
+			throw new createError.BadRequest('There was an error trying to store the results of the election');
+		}
+	}
+
+	// Deletes everything having to do with voting (except candidates running because that was already deleted)
+	async function clear_database() {
+		let delete_error = new createError.BadRequest('There was an error trying to delete the results of the election');
+
+		sql_pool.getConnection(function(err, connection) {
+			if (err) { throw delete_error; }
+
+			connection.beginTransaction(function(err) {
+				if (err) { throw delete_error; }
+
+				// Either delete from president or role back any changes that had been made
+				connection.query('DELETE FROM `president`', function (err, result) {
+					if (err) { throw delete_error; }
+				});
+				connection.query('DELETE FROM `vp`', function(err, result) {
+					if (err) { throw delete_error;}
+				});
+				connection.query('DELETE FROM `treasurer`', function (err, result) {
+					if (err) { throw delete_error; }
+				});
+				connection.query('DELETE FROM `secretary`', function(err, result) {
+					if (err) {throw delete_error;}
+				});
+				connection.query('DELETE FROM `voters`', function (err, result) {
+					if (err) { throw delete_error; }
+				});
+				connection.query('DELETE FROM `results`', function(err, result) {
+					if (err) {throw delete_error;}
+				});
+				connection.query('DELETE FROM `eligible_voters`', function(err, result) {
+					if (err) {throw delete_error;}
+				});
+
+				connection.commit(function(err) {
+					if (err) { 
+				 	  connection.rollback(function() {
+				 		throw delete_error;
+					  });
+					}
+				});
+
+			});
+			connection.release();
+		});
+	}
+
+	async function get_election_results() {
+		let results = {
+			president: await queryAsync('SELECT `json` FROM `results` WHERE position="president"'),
+			vp: await queryAsync('SELECT `json` FROM `results` WHERE position = "vp"'),
+			treasurer: await queryAsync('SELECT `json` FROM `results` WHERE position = "treasurer"'),
+			secretary: await queryAsync('SELECT `json` FROM `results` WHERE position = "secretary"')
+		}
+		results.president = JSON.parse(results.president[0].json);
+		results.vp = JSON.parse(results.vp[0].json);
+		results.treasurer = JSON.parse(results.treasurer[0].json);
+		results.secretary = JSON.parse(results.secretary[0].json);
+		return results;
+	}
+
+	async function there_are_results() {
+		let result = await queryAsync('SELECT * FROM `results`');
+		return result.length > 0;
+	}
+
+	async function add_tile(name, description, link) {
+		const values = { name: name, description: description, link: link };
+		return await queryAsync('INSERT INTO `tiles` SET ?', values);
+	}
+
+	async function delete_tile(id) {
+		return await queryAsync('UPDATE `tiles` SET `deleted` = TRUE WHERE `id` = ?', id);
+	}
+
+	/* Get a list of the user's writeup submissions */
+	async function get_user_writeup_submissions(account_id) {
+		return await queryAsync('SELECT `id`,`name` FROM `writeup_submissions` WHERE `account_id` = ?',
+			account_id);
+	}
+
+	/* Get a list of the user's writeup submissions */
+	async function get_all_writeup_submissions() {
+		return await queryAsync('SELECT `writeup_submissions`.id,`name`,`time_updated`,`full_name` FROM `writeup_submissions`,`account` WHERE `writeup_submissions`.account_id = `account`.id');
+	}
+
+	/* Get a specific writeup, given its id */
+	async function get_writeup(id) {
+		return await queryAsync('SELECT `name`,`full_name` FROM `writeup_submissions`,`account` WHERE `writeup_submissions`.account_id = `account`.id AND `writeup_submissions`.id = ?',
+			id);
+	}
+
+	/* Get a list of the user's writeup submissions */
+	async function get_file_uploads(account_id) {
+		return await queryAsync('SELECT `id`,`name` FROM `file_uploads` WHERE `account_id` = ?',
+			account_id);
+	}
+
+	/* Records a writeup submission */
+	async function record_writeup_submission(account_id, name) {
+		const values = {
+			account_id: account_id,
+			name: name,
+			time_created: new Date(),
+			time_updated: new Date(),
+		};
+		return await queryAsync('INSERT INTO `writeup_submissions` SET ?', values);
+	}
+
+	/* Records a writeup submission */
+	async function update_writeup_submission(account_id, name, id) {
+		let results = await queryAsync('SELECT * FROM `writeup_submissions` WHERE `account_id` = ? AND `id` = ?',
+			[account_id, id]);
+		if (results.length === 0) {
+			throw new createError.BadRequest('Cannot update a different user\'s writeup');
+		}
+
+		return await queryAsync('UPDATE `writeup_submissions` SET `name` = ?, `time_updated` = ? WHERE `account_id` = ? AND `id` = ?',
+			[name, new Date(), account_id, id]);
+	}
+
+	/* Records a file upload */
+	async function record_file_upload(account_id, name) {
+		const values = {
+			account_id: account_id,
+			time_created: new Date(),
+			name: name,
+		};
+		return await queryAsync('INSERT INTO `file_uploads` SET ?', values);
+	}
+
+	/* Records a file upload */
+	async function get_resume_key(account_id) {
+		return await queryAsync('SELECT `resume` FROM `account` WHERE `id`=?', account_id);
+	}
+
+	/* Records a resume upload */
+	async function record_resume_upload(account_id, key) {
+		return await queryAsync('UPDATE `account` SET `resume`=? WHERE `id`=?',
+			[key, account_id]);
+	}
+
+	/* Returns a user's resume questions */
+	async function get_resume_questions(account_id) {
+    	return await queryAsync('SELECT `research`,`internship`,`major`,`grad_date`,`gpa` FROM `account` WHERE `id`=?',
+            account_id);
+  }
+
+    /* Get all writeup submissions */
+    async function get_all_writeup_submissions() {
+        const attributes = '`writeup_submissions`.id,`name`,`time_updated`,`full_name`,`hidden`,`difficulty`,`description`';
+        return await queryAsync('SELECT ' + attributes + ' FROM `writeup_submissions`,`account` WHERE `writeup_submissions`.account_id = `account`.id');
+    }
+
+    /* Get a specific writeup, given its id */
+    async function get_writeup(id) {
+        return await queryAsync('SELECT `name`,`full_name`,`description` FROM `writeup_submissions`,`account` WHERE `writeup_submissions`.account_id = `account`.id AND `writeup_submissions`.id = ?',
+            id);
+    }
+
+    /* Deletes a specific writeup, given its id */
+    async function delete_writeup(id, account_id, isAdmin) {
+        let result = await queryAsync('SELECT * FROM `writeup_submissions` WHERE account_id = ? AND id = ?',
+        [account_id, id]);
+
+        if(result.length === 0 && !isAdmin) {
+            throw new createError.BadRequest('You do not own this writeup.');
         }
 
-        // Adds a users email to the voters table so that they cannot vote again
-        async function record_that_user_voted() {
-            return await queryAsync('INSERT INTO `voters` SET ?', { person: user_id });
+        await queryAsync('DELETE FROM `writeup_clicks` WHERE writeup_id = ?',
+            id);
+        return await queryAsync('DELETE FROM `writeup_submissions` WHERE account_id = ? AND id = ?',
+            [account_id, id]);
+    }
+
+    /* Deletes a specific file, given its id */
+    async function delete_file(id, account_id, isAdmin) {
+        let result = await queryAsync('SELECT * FROM `file_uploads` WHERE account_id = ? AND id = ?',
+        [account_id, id]);
+
+        if(result.length === 0 && !isAdmin) {
+            throw new createError.BadRequest('You do not own this file.');
         }
 
-        // Verifies that a vote is valid
-        async function verify_valid_vote() {
-            try {
-                // Verifies all president choices
-                for (var pres of vote.president) {
-                    let count = await queryAsync('SELECT `person` FROM `candidates` WHERE person=? AND `pres`=1', pres);
-                    // If the person is not in the list of candidates for president return false
-                    if (count.length < 1) { return false; }
+        return await queryAsync('DELETE FROM `file_uploads` WHERE account_id = ? AND id = ?',
+            [account_id, id]);
+    }
+
+    /* Get a list of the user's writeup submissions */
+    async function get_file_uploads(account_id) {
+        return await queryAsync('SELECT `id`,`name` FROM `file_uploads` WHERE `account_id` = ?',
+            account_id);
+    }
+
+    /* Records a writeup submission */
+    async function record_writeup_submission(account_id, name, description) {
+        const values = {
+            account_id: account_id,
+            name: name,
+            description: description,
+            time_created: new Date(),
+            time_updated: new Date(),
+        };
+        return await queryAsync('INSERT INTO `writeup_submissions` SET ?', values);
+    }
+
+    /* Records a writeup submission */
+    async function update_writeup_submission(account_id, name, description, id) {
+        let results = await queryAsync('SELECT * FROM `writeup_submissions` WHERE `account_id` = ? AND `id` = ?',
+            [account_id, id]);
+        if (results.length === 0) {
+            throw new createError.BadRequest('Cannot update a different user\'s writeup');
+        }
+
+        return await queryAsync('UPDATE `writeup_submissions` SET `name` = ?, `time_updated` = ?, `description`=? WHERE `account_id` = ? AND `id` = ?',
+                [name, new Date(), description, account_id, id]);
+    }
+
+    /* Records a file upload */
+    async function record_file_upload(account_id, name) {
+        const values = {
+            account_id: account_id,
+            time_created: new Date(),
+            name: name,
+        };
+        return await queryAsync('INSERT INTO `file_uploads` SET ?', values);
+    }
+
+    /* Records a resume upload */
+    async function record_resume_upload(account_id, key) {
+        return await queryAsync('UPDATE `account` SET `resume`=? WHERE `id`=?', [key, account_id]);
+    }
+
+    /* Get total writeup clicks for a user */
+    async function total_user_writeup_clicks(account_id) {
+        return await queryAsync('SELECT COUNT(*) FROM `writeup_clicks` WHERE `account_id`=?', account_id);
+    }
+
+    /* Get unique writeup clicks for a user */
+    async function unique_user_writeup_clicks(account_id) {
+        return await queryAsync('SELECT COUNT(DISTINCT `writeup_id`) FROM `writeup_clicks` WHERE `account_id`=?', account_id);
+    }
+
+    /* Get total clicks on a writeup for all users */
+    async function total_writeup_clicks(writeup_id) {
+        return await queryAsync('SELECT COUNT(*) FROM `writeup_clicks` WHERE `writeup_id`=?', writeup_id);
+    }
+
+    /* Get unique clicks on a writeup for all users */
+    async function unique_writeup_clicks(writeup_id) {
+        return await queryAsync('SELECT COUNT(DISTINCT `user_id`) FROM `writeup_clicks` WHERE `writeup_id`=?', writeup_id);
+    }
+
+    /* Returns a user's resume questions */
+    async function get_resume_questions(account_id) {
+        return await queryAsync('SELECT `research`,`internship`,`major`,`grad_date`,`gpa` FROM `account` WHERE `id`=?',
+                                account_id);
+    }
+
+    /* Returns a user's resume questions */
+    async function set_resume_questions(account_id, new_data) {
+        return await queryAsync('UPDATE `account` SET `research`=?,`internship`=?,`major`=?,`grad_date`=?,`gpa`=? WHERE `id`=?',
+                                [new_data.research, new_data.internship, new_data.major, new_data.grad_date, new_data.gpa, account_id]);
+    }
+    
+    async function get_session_table(){
+        return await queryAsync('SELECT id FROM `account`');
+    }
+
+    async function insertMeeting(values){
+        values.created_on = new Date();
+        return await queryAsync('INSERT INTO `meeting` SET ?', values);
+    }
+
+    async function deleatMeeting(values) {
+        return await queryAsync('DELETE FROM `meeting` WHERE start_time = ? AND end_time = ? AND day_of_week = ?', [values.start_time, values.end_time, values.day_of_week]);
+    }
+
+    async function get_id(email) {
+        let id = -1;
+        if(email != 'left_blank@ufl.edu'){
+            let results = await queryAsync('SELECT `id` FROM `account` WHERE `email` =?', email);
+            if(results.length === 0){
+                results = await queryAsync('SELECT `id` FROM `account` WHERE `ufl_email` =?', email);
+                if(results.length !== 0){ 
+                    id = results[0].id;
                 }
-                //vote.president.length = 30;
-                // Verifies all vp choices
-                for (var pres of vote.vp) {
-                    let count = await queryAsync('SELECT `person` FROM `candidates` WHERE person=? AND `vp`=1', pres);
-                    if (count.length < 1) { return false; }
-                }
-                //vote.vp.length = 30;
-                // Verifies all Treasurer choices
-                for (var pres of vote.treasurer) {
-                    let count = await queryAsync('SELECT `person` FROM `candidates` WHERE person=? AND `treas`=1', pres);
-                    if (count.length < 1) { return false; }
-                }
-                //vote.treasurer.length = 30;
-                // Verifies all Secretary choices
-                for (var pres of vote.secretary) {
-                    let count = await queryAsync('SELECT `person` FROM `candidates` WHERE person=? AND `secr`=1', pres);
-                    if (count.length < 1) { return false; }
-                }
-                //vote.secretary.length = 30;
-                return true;
-            } catch (error) {	// Only catches an error when you have tried to vote for a person not running
-                return false;
+            }else{
+                id = results[0].id;
             }
         }
-
-        // Records a users vote after it has been thoroughly validated
-        async function insert_votes(position, candidate_array) {
-            let values = {}
-            for (const [index, value] of candidate_array.entries()) {
-                values[(index + 1).toString() + 'th'] = value;
-            }
-            await queryAsync('INSERT INTO `' + position + '` SET ?', values);
-        }
+        return id;
     }
 
-    async function end_election() {
-        if (await current_election()) {
-            await queryAsync('DELETE FROM `candidates`');
-        }
-        else {
-            throw new createError.BadRequest('There was an error trying to delete from the database');
-        }
-    }
-
-    // Grabs all the ranking of every position and returns those inside of a promise
-    async function get_votes() {
-        try {
-            const results = {
-                president: await queryAsync('SELECT * FROM `president`'),
-                vp: await queryAsync('SELECT * FROM `vp`'),
-                treasurer: await queryAsync('SELECT * FROM `treasurer`'),
-                secretary: await queryAsync('SELECT * FROM `secretary`')
-            }
-            return results;
-        } catch (error) {
-            throw new createError.BadRequest('There was an error trying to query the results of the election');
-        }
-    }
-
-    // Stores the results of an election
-    async function store_results(results) {
-        // Everything get converted to a string and the results are stored
-        try {
-            await queryAsync('INSERT INTO `results` SET ?', { position: 'president', json: JSON.stringify(results.president) });
-            await queryAsync('INSERT INTO `results` SET ?', { position: 'vp', json: JSON.stringify(results.vp) });
-            await queryAsync('INSERT INTO `results` SET ?', { position: 'treasurer', json: JSON.stringify(results.treasurer) });
-            await queryAsync('INSERT INTO `results` SET ?', { position: 'secretary', json: JSON.stringify(results.secretary) });
-        } catch (error) {
-            throw new createError.BadRequest('There was an error trying to store the results of the election');
-        }
-    }
-
-    // Deletes everything having to do with voting (except candidates running because that was already deleted)
-    async function clear_database() {
-        try {
-            await queryAsync('DELETE FROM `president`');
-            await queryAsync('DELETE FROM `vp`');
-            await queryAsync('DELETE FROM `treasurer`');
-            await queryAsync('DELETE FROM `secretary`');
-            await queryAsync('DELETE FROM `results`');
-            await queryAsync('DELETE FROM `voters`');
-        } catch (error) {
-            throw new createError.BadRequest('There was an error deleting data from the database');
-        }
-    }
-
-    async function get_election_results() {
-        let results = {
-            president: await queryAsync('SELECT `json` FROM `results` WHERE position="president"'),
-            vp: await queryAsync('SELECT `json` FROM `results` WHERE position = "vp"'),
-            treasurer: await queryAsync('SELECT `json` FROM `results` WHERE position = "treasurer"'),
-            secretary: await queryAsync('SELECT `json` FROM `results` WHERE position = "secretary"')
-        }
-        results.president = JSON.parse(results.president[0].json);
-        results.vp = JSON.parse(results.vp[0].json);
-        results.treasurer = JSON.parse(results.treasurer[0].json);
-        results.secretary = JSON.parse(results.secretary[0].json);
-        return results;
-    }
-
-    async function there_are_results() {
-        let result = await queryAsync('SELECT * FROM `results`');
-        return result.length > 0;
-    }
-
-    async function add_tile(name, description, link) {
-        const values = { name: name, description: description, link: link };
-        return await queryAsync('INSERT INTO `tiles` SET ?', values);
-    }
-
-    async function delete_tile(id) {
-        return await queryAsync('UPDATE `tiles` SET `deleted` = TRUE WHERE `id` = ?', id);
-    }
-
+    
     /* search meeting table for a date to see if a meeting is occuring */
     async function search_for_meeting(date) {
 
@@ -616,163 +891,6 @@ let db_mgmt_module = function () {
             time: new Date(),
             };
         return await queryAsync('INSERT INTO `meeting_signin` SET ?', values);
-    }
-
-    /* Get a list of the user's writeup submissions */
-    async function get_user_writeup_submissions(account_id) {
-        return await queryAsync('SELECT `id`,`name` FROM `writeup_submissions` WHERE `account_id` = ?',
-            account_id);
-    }
-
-    /* Get all writeup submissions */
-    async function get_all_writeup_submissions() {
-        const attributes = '`writeup_submissions`.id,`name`,`time_updated`,`full_name`,`hidden`,`difficulty`,`description`';
-        return await queryAsync('SELECT ' + attributes + ' FROM `writeup_submissions`,`account` WHERE `writeup_submissions`.account_id = `account`.id');
-    }
-
-    /* Get a specific writeup, given its id */
-    async function get_writeup(id) {
-        return await queryAsync('SELECT `name`,`full_name`,`description` FROM `writeup_submissions`,`account` WHERE `writeup_submissions`.account_id = `account`.id AND `writeup_submissions`.id = ?',
-            id);
-    }
-
-    /* Deletes a specific writeup, given its id */
-    async function delete_writeup(id, account_id, isAdmin) {
-        let result = await queryAsync('SELECT * FROM `writeup_submissions` WHERE account_id = ? AND id = ?',
-        [account_id, id]);
-
-        if(result.length === 0 && !isAdmin) {
-            throw new createError.BadRequest('You do not own this writeup.');
-        }
-
-        await queryAsync('DELETE FROM `writeup_clicks` WHERE writeup_id = ?',
-            id);
-        return await queryAsync('DELETE FROM `writeup_submissions` WHERE account_id = ? AND id = ?',
-            [account_id, id]);
-    }
-
-    /* Deletes a specific file, given its id */
-    async function delete_file(id, account_id, isAdmin) {
-        let result = await queryAsync('SELECT * FROM `file_uploads` WHERE account_id = ? AND id = ?',
-        [account_id, id]);
-
-        if(result.length === 0 && !isAdmin) {
-            throw new createError.BadRequest('You do not own this file.');
-        }
-
-        return await queryAsync('DELETE FROM `file_uploads` WHERE account_id = ? AND id = ?',
-            [account_id, id]);
-    }
-
-    /* Get a list of the user's writeup submissions */
-    async function get_file_uploads(account_id) {
-        return await queryAsync('SELECT `id`,`name` FROM `file_uploads` WHERE `account_id` = ?',
-            account_id);
-    }
-
-    /* Records a writeup submission */
-    async function record_writeup_submission(account_id, name, description) {
-        const values = {
-            account_id: account_id,
-            name: name,
-            description: description,
-            time_created: new Date(),
-            time_updated: new Date(),
-        };
-        return await queryAsync('INSERT INTO `writeup_submissions` SET ?', values);
-    }
-
-    /* Records a writeup submission */
-    async function update_writeup_submission(account_id, name, description, id) {
-        let results = await queryAsync('SELECT * FROM `writeup_submissions` WHERE `account_id` = ? AND `id` = ?',
-            [account_id, id]);
-        if (results.length === 0) {
-            throw new createError.BadRequest('Cannot update a different user\'s writeup');
-        }
-
-        return await queryAsync('UPDATE `writeup_submissions` SET `name` = ?, `time_updated` = ?, `description`=? WHERE `account_id` = ? AND `id` = ?',
-                                [name, new Date(), description, account_id, id]);
-    }
-
-    /* Records a file upload */
-    async function record_file_upload(account_id, name) {
-        const values = {
-            account_id: account_id,
-            time_created: new Date(),
-            name: name,
-        };
-        return await queryAsync('INSERT INTO `file_uploads` SET ?', values);
-    }
-
-    /* Records a file upload */
-    async function get_resume_key(account_id) {
-        return await queryAsync('SELECT `resume` FROM `account` WHERE `id`=?', account_id);
-    }
-
-    /* Records a resume upload */
-    async function record_resume_upload(account_id, key) {
-        return await queryAsync('UPDATE `account` SET `resume`=? WHERE `id`=?', [key, account_id]);
-    }
-
-    /* Get total writeup clicks for a user */
-    async function total_user_writeup_clicks(account_id) {
-        return await queryAsync('SELECT COUNT(*) FROM `writeup_clicks` WHERE `account_id`=?', account_id);
-    }
-
-    /* Get unique writeup clicks for a user */
-    async function unique_user_writeup_clicks(account_id) {
-        return await queryAsync('SELECT COUNT(DISTINCT `writeup_id`) FROM `writeup_clicks` WHERE `account_id`=?', account_id);
-    }
-
-    /* Get total clicks on a writeup for all users */
-    async function total_writeup_clicks(writeup_id) {
-        return await queryAsync('SELECT COUNT(*) FROM `writeup_clicks` WHERE `writeup_id`=?', writeup_id);
-    }
-
-    /* Get unique clicks on a writeup for all users */
-    async function unique_writeup_clicks(writeup_id) {
-        return await queryAsync('SELECT COUNT(DISTINCT `user_id`) FROM `writeup_clicks` WHERE `writeup_id`=?', writeup_id);
-    }
-
-    /* Returns a user's resume questions */
-    async function get_resume_questions(account_id) {
-        return await queryAsync('SELECT `research`,`internship`,`major`,`grad_date`,`gpa` FROM `account` WHERE `id`=?',
-                                account_id);
-    }
-
-    /* Returns a user's resume questions */
-    async function set_resume_questions(account_id, new_data) {
-        return await queryAsync('UPDATE `account` SET `research`=?,`internship`=?,`major`=?,`grad_date`=?,`gpa`=? WHERE `id`=?',
-                                [new_data.research, new_data.internship, new_data.major, new_data.grad_date, new_data.gpa, account_id]);
-    }
-    
-    async function get_session_table(){
-        return await queryAsync('SELECT id FROM `account`');
-    }
-
-    async function insertMeeting(values){
-        values.created_on = new Date();
-        return await queryAsync('INSERT INTO `meeting` SET ?', values);
-    }
-
-    async function deleatMeeting(values) {
-        return await queryAsync('DELETE FROM `meeting` WHERE start_time = ? AND end_time = ? AND day_of_week = ?', [values.start_time, values.end_time, values.day_of_week]);
-    }
-
-    async function get_id(email) {
-        let id = -1;
-        if(email != 'left_blank@ufl.edu'){
-            let results = await queryAsync('SELECT `id` FROM `account` WHERE `email` =?', email);
-            if(results.length === 0){
-                results = await queryAsync('SELECT `id` FROM `account` WHERE `ufl_email` =?', email);
-                if(results.length !== 0){ 
-                    id = results[0].id;
-                }
-            }else{
-                id = results[0].id;
-            }
-        }
-        return id;
     }
 
     // Revealing module

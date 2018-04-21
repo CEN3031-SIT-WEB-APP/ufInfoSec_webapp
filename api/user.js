@@ -173,9 +173,9 @@ routes.post('/user/signin', async function(req, res, next) {
 			// }
 			break;
 		case "meeting cond inc":
-			// if(await account_mgmt.meetingCondInc(req.session.account_id) === 0){
+			if(await account_mgmt.meetingCondInc(req.session.account_id) === 0){
 				res.status(304).send('Success');
-			// }
+			}
 			break;
 		default:
 			console.log("meeting: that func doesnt exist");

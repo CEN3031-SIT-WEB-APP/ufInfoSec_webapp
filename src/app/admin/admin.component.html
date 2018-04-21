@@ -102,7 +102,7 @@
         <span class="notification_panel">
           <strong>Warning</strong> You are about to end the current elections. This will effect EVERY USER and cannot be undone.
           To proceed, click end election again</span>
-        <br>
+          <br>
       </div>
       <button *ngIf="this.getElection()" class="btn btn-md btn-success" (click)="endElection()">End Election</button>
 
@@ -241,7 +241,7 @@
         <form [formGroup]="signInForm" (ngSubmit)="onSignInSubmit(signInForm)">
             <div formArrayName="signInInfo" *ngFor="let x of signInForm.controls.signInInfo.controls; let i = index;">
                 <div [formGroupName]="i">
-                    <h6 class="modal-title">Member name</h6>
+                    <h6 class="modal-title">Member email</h6>
                     <input type="textarea" formControlName="member" placeholder="Person"/>
                     <select formControlName="signInCount">
                         <option *ngFor="let count of getNums()" [value]="count">{{count}}</option>

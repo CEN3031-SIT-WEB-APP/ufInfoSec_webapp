@@ -46,10 +46,12 @@ export class RegisterComponent implements OnInit {
         // tslint:disable-next-line:max-line-length
         Validators.pattern(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@ufl.edu/)]],
       password: ['', [
-        Validators.required
+        Validators.required,
+        Validators.minLength(8)
       ]],
       confirm_password: ['', [
-        Validators.required
+        Validators.required,
+        Validators.minLength(8)
       ]],
       grad_date: ['Already Graduated', [
         Validators.required
