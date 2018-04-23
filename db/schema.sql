@@ -9,6 +9,7 @@ CREATE TABLE `account` (
 	`registration_ip` varchar(40) NOT NULL,
 	`registration_date` DATETIME NOT NULL,
 	`last_visit` DATETIME,
+	`total_meetings` INT NOT NULL DEFAULT '0',
 	`mass_mail_optin` INT(1) NOT NULL,
 	`grad_date` varchar(50) NOT NULL,
 	`rank` INT NOT NULL DEFAULT '0',
@@ -32,6 +33,22 @@ CREATE TABLE `candidates` (
 	`vp` bit NOT NULL,
 	`treas` bit NOT NULL,
 	`secr` bit NOT NULL
+);
+
+CREATE TABLE `meeting` (
+	`meeting_id` INT NOT NULL AUTO_INCREMENT,
+	`day_of_week` INT,	
+	`start_time` TIME,
+	`end_time` TIME,
+	`created_on` DATETIME NOT NULL,
+	`reoccuring` BOOLEAN DEFAULT '0',
+	PRIMARY KEY (`meeting_id`)
+);
+
+CREATE TABLE `meeting_signin` (
+	`meeting_id` INT NOT NULL, 
+	`account_id` INT NOT NULL ,
+	`time` DATETIME NOT NULL
 );
 
 CREATE TABLE `content_tags` (

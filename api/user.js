@@ -88,14 +88,6 @@ async function update_user_profile(account_id, req, res, next) {
 			return;
 		}
 
-/*
-		if (req.body.old_password === req.body.confirm_password) {
-			console.log('Old password cannot equal the new password');
-			res.status(400).send('Old password cannot equal the new password');
-			return;
-		}
-*/
-
 		// if it is correct, change it to the new one
 		updated_items.push(['Password', 'password', 'new_password']);
 
@@ -150,6 +142,48 @@ routes.post('/user/profile', async function(req, res, next) {
 
 routes.post('/user/profile/:user_id', async function(req, res, next) {
 	update_user_profile(req.params.user_id, req, res, next);
+});
+
+routes.post('/user/signin', async function(req, res, next) {
+	try {
+	switch (req.body.func) {
+		case "meeting set":
+			// if (util.account_has_admin(req.session.account)) {
+				const id = await account_mgmt.get_id(req.body.data.email);
+				if(id<0){
+					console.log("ERROR bad email");
+				}else{
+					await account_mgmt.meetingSet(id, req.body.data.val);
+				}
+			// }
+			break;
+		case "meeting inc":
+			// if (util.account_has_admin(req.session.account)) {
+				await account_mgmt.meetingInc(req.session.account_id);
+			// }
+			break;
+		case "meeting reset":
+			// if (util.account_has_admin(req.session.account)) {
+				await account_mgmt.meetingRstAll();
+			// }
+			break;
+		case "meeting inc all":
+			// if (util.account_has_admin(req.session.account)) {
+				await account_mgmt.meetingIncAll();
+			// }
+			break;
+		case "meeting cond inc":
+			if(await account_mgmt.meetingCondInc(req.session.account_id) === 0){
+				res.status(304).send('Success');
+			}
+			break;
+		default:
+			console.log("meeting: that func doesnt exist");
+			break;
+	}
+	res.status(200).send('Success');
+} catch (error) { return next(error) }
+
 });
 
 module.exports = routes;

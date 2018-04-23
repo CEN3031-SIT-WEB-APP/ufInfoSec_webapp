@@ -1,6 +1,6 @@
 <div class="container container-fluid full-height">
   <div class="row">
-    <div class="col-md-5 col-md-offset-1">
+    <div class="col-md-6 col-md-offset-1">
       <div id="profileTitle" class="main_header">{{ this.getTitle() }}
       </div>
       <br>
@@ -23,6 +23,9 @@
           <p>{{ this.getProfile().grad_date }}</p>
           <br>
 
+          <a id="updateProfileButton" routerLink="{{ this.getEditLink() }}" class="btn btn-info" role="button">Update Profile</a>
+          
+        
         </div>
 
         <div class="col-md-6">
@@ -38,7 +41,13 @@
           <p>{{ this.getProfile().rank }}</p>
           <br>
 
-          <a id="updateProfileButton" routerLink="{{ this.getEditLink() }}" class="btn btn-info" role="button">Update Profile</a>
+          <label class='input-label'>Total meetings:</label>
+          <p>{{ this.getProfile().total_meetings }}</p>
+
+          <br>
+
+          <button class="btn btn-success SignInButton" (click)="meetingSignIn()">Sign In</button>
+          
         </div>
       </div>
     </div>

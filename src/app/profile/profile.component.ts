@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-
+import { NgForm, FormGroup, FormBuilder, FormsModule, Validators, FormArray, FormControl } from '@angular/forms';
 import { SessionService } from '../session.service';
 
 @Component({
@@ -8,6 +8,7 @@ import { SessionService } from '../session.service';
     templateUrl: './profile.component.html',
     styleUrls: ['./profile.component.css']
 })
+
 export class ProfileComponent implements OnInit {
     // profile holds the profile data we are currently viewing
     private profile;
@@ -44,6 +45,7 @@ export class ProfileComponent implements OnInit {
             this.title = this.profile.full_name + '\'s Profile';
             this.editLink = '/profile/' + id + '/edit';
         }
+
     }
 
     // get page title
@@ -65,4 +67,18 @@ export class ProfileComponent implements OnInit {
             profile.ufl_email = '';
         return profile;
     }
+
+  public meetingSignIn() {
+    let data = {email:this.profile.email, val:1};
+    let func = "meeting cond inc";
+    this.sessionService.meetingSignIn(data, func).subscribe(
+      res => {
+        if (res.status === 200) {alert('You have successfully signed in!');}
+        else { alert('There was a problem signing in');}
+      },
+      err => {
+        alert('An error was encountered');
+      }
+    );
+  }
 }

@@ -1,6 +1,6 @@
 <div class="container container-fluid full-height">
 
-  <br/>
+    <br/>
 
   <div class="row m-1 center">
 
@@ -34,6 +34,7 @@
             <tr>
               <td>Full Name</td>
               <td>Email</td>
+              <td>Ufl Email</td>
               <td>Graduation Year</td>
               <td>Mailing List?</td>
               <td>Registration Date</td>
@@ -45,6 +46,7 @@
                 <a routerLink="/profile/{{u.id}}">{{u.full_name}}</a>
               </td>
               <td>{{u.email}}</td>
+              <td>{{u.ufl_email}}</td>
               <td>{{u.grad_date}}</td>
               <td>{{u.mass_mail_optin}}</td>
               <td title="Registered on {{u.registration_date | date : 'medium'}}">{{u.registration_date | timeAgo}}</td>
@@ -78,6 +80,19 @@
       </form>
 
       <br/>
+
+      <h5 class="mb-3">Create New Poll</h5>
+      <button class="btn btn-md btn-success" (click)="open(content)">Add Poll</button>
+
+      <div class="row">
+          <h5 class="mb-3">Change a member's sign-in amount</h5>
+          <button class="btn btn-lg btn-outline-success alterSignIn" (click)="open(alterSignInModal)">Change meeting sign-in count</button>
+      </div>
+
+      <div class="row">
+          <h5 class="mb-3">Create a new meeting</h5>
+          <button class="btn btn-lg btn-outline-success alterSignIn" (click)="open(createMeetingModal)">Create/Remove meeting</button>
+      </div>
 
       <h5 class="mb-3">Elections</h5>
       <button *ngIf="!notifications.electionResults" class="btn btn-md btn-success" (click)="open(content)">Create new Poll</button>
@@ -136,7 +151,7 @@
             <ss-multiselect-dropdown class="m-0 ml-1 mr-1" [options]="myOptions" formControlName="position" [settings]="mySettings">
             </ss-multiselect-dropdown>
             <button class="btn btn-danger p-1 m-0 ml-2" (click)="deleteField(i)"> Delete </button>
-          </div>
+          </div>            
         </div>
       </div>
 
@@ -204,5 +219,88 @@
     </div>
     <button (click)="deleteResults()" class="btn btn-primary btn-lg btn-block">Delete all election results</button>
   </div>
+</ng-template>
 
+
+<!-- Change meeting sign-in Modal Popup -->
+<ng-template #alterSignInModal let-c="close" let-d="dismiss">
+  <!--Empty Field Notification -->
+  <div *ngIf="signInNotifications.emptyField" class="alert alert-danger alert-dismissible" id="emailConflictAlert" role="alert">
+    <button type="button" class="close" (click)="signInNotifications.emptyField = false">
+    <span aria-hidden="true">&times;</span></button>
+    <span class="notification_panel"><strong>Error</strong> Cannot have empty field</span>
+  </div>
+
+  <!-- Header for modal -->
+    <div class="modal-header">
+        <h3 class="modal-title">Change meeting sign in count for a member</h3>
+        <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+    <div class="modal-body">
+        <form [formGroup]="signInForm" (ngSubmit)="onSignInSubmit(signInForm)">
+            <div formArrayName="signInInfo" *ngFor="let x of signInForm.controls.signInInfo.controls; let i = index;">
+                <div [formGroupName]="i">
+                    <h6 class="modal-title">Member email</h6>
+                    <input type="textarea" formControlName="member" placeholder="Person"/>
+                    <select formControlName="signInCount">
+                        <option *ngFor="let count of getNums()" [value]="count">{{count}}</option>
+                    </select>
+                    <br><br>
+                </div>
+            </div>
+
+            <button type="submit">Save</button>
+        </form>
+    </div>
+</ng-template>
+
+
+<!-- hours, minutes, day of week, reoccuring-->
+<!-- Create Meeting Modal Popup -->
+<ng-template #createMeetingModal let-c="close" let-d="dismiss">
+  <!--Empty Field Notification -->
+  <div *ngIf="createMeetingNotifications.emptyField" class="alert alert-danger alert-dismissible" id="emailConflictAlert" role="alert">
+    <button type="button" class="close" (click)="createMeetingNotifications.emptyField = false">
+    <span aria-hidden="true">&times;</span></button>
+    <span class="notification_panel"><strong>Error</strong> Cannot have empty field</span>
+  </div>
+
+  <!-- Header for modal -->
+    <div class="modal-header">
+        <h3 class="modal-title">Create/Remove a Meeting</h3>
+        <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+    <div class="modal-body">
+        <form [formGroup]="createMeetingForm" (ngSubmit)="onCreateMeetingSubmit(createMeetingForm)">
+            <div formArrayName="createMeetingInfo" *ngFor="let x of createMeetingForm.controls.createMeetingInfo.controls; let i = index;">
+                <div [formGroupName]="i">
+                    <h6 class="modal-title">Weekday</h6>
+                    <select formControlName="weekDay">
+                        <option *ngFor="let count of getDays()" [value]="count">{{count}}</option>
+                    </select>
+                    <h6 class="modal-title">Start Time</h6>
+                    <input type="textarea" formControlName="startTime" placeholder="HH:MM"/>
+                    <h6 class="modal-title">End Time</h6>
+                    <input type="textarea" formControlName="endTime" placeholder="HH:MM"/>
+                    <h6 class="modal-title">Is the meeting reoccuring?</h6>
+                    <select formControlName="reoccuring">
+                        <option *ngFor="let count of getReoccuring()" [value]="count">{{count}}</option>
+                    </select>
+                    <h6 class="modal-title">Create or remove meeting</h6>
+                    <select formControlName="create">
+                        <option *ngFor="let count of getCreate()" [value]="count">{{count}}</option>
+                    </select>
+                    <br><br>
+                </div>
+            </div>
+
+            <button type="submit">Save</button>
+        </form>
+    </div>
 </ng-template>

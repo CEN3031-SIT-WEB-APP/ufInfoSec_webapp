@@ -230,4 +230,12 @@ export class RestService {
     }
 
 
+  public meetingSet(data, func:string){
+    return this.post('/user/signin', {data:data, func:func});
+  }
+
+  public createMeeting(data, create){
+    return this.post('/admin/meeting', {data, create});
+  }
+
 }

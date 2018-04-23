@@ -134,5 +134,28 @@ export class SessionService {
       })
     );
   }
+        
+  public meetingSignIn(data, func:string) {
+    return this.restService.meetingSet(data,func).pipe(
+      map(res => {
+        return res;
+      }),
+      catchError(err => {
+        return of(err);
+      })
+    );
+  }
+
+  public createMeeting(data, create) {
+    return this.restService.createMeeting(data, create).pipe(
+      map(res => {
+        return res;
+      }),
+      catchError(err => {
+        return of(err);
+      })
+    );
+  }
+
 
 }

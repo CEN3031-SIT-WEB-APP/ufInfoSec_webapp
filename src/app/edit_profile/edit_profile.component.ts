@@ -93,17 +93,17 @@ export class EditProfileComponent implements OnInit {
 
             old_password: ['', [
                 Validators.required,
-                Validators.minLength(5)
+                Validators.minLength(8)
             ]],
 
             new_password: ['', [
                 // Validators.required,
-                Validators.minLength(5)
+                Validators.minLength(8)
             ]],
 
             confirm_password: ['', [
                 // Validators.required,
-                Validators.minLength(5)
+                Validators.minLength(8)
             ]],
 
             grad_year: [this.sessionService.getProfile().grad_date, [
