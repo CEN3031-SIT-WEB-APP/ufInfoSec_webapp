@@ -71,6 +71,8 @@ export class AdminComponent implements OnInit {
         for (let i = 0; success[i] !== undefined; i++) {
           const user = success[i];
           user['mass_mail_optin'] = (user['mass_mail_optin'] === 1) ? 'Yes' : 'No';
+          if(user['ufl_email'] === 'left_blank@ufl.edu') user['ufl_email'] = '';
+          if(user['email'] === 'left_blank@ufl.edu') user['email'] = '';
         }
         this.users = success;
       },

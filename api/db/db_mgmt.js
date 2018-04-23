@@ -195,7 +195,7 @@ let db_mgmt_module = function () {
 
     async function list_users() {
         return await queryAsync('SELECT ?? FROM `account`',
-            [['id', 'email', 'full_name', 'mass_mail_optin', 'grad_date', 'registration_date', 'total_meetings']]);
+            [['id', 'email', 'ufl_email', 'full_name', 'mass_mail_optin', 'grad_date', 'registration_date', 'total_meetings']]);
     }
 
     async function add_tile(name, description, link) {
